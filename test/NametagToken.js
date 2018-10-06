@@ -57,7 +57,12 @@ contract('NametagToken', function(accounts) {
 
 });
 
+/*
+This method is crucial for all apps and dapps that will implement NametagToken (NTT)
 
+This method allows the dapp to take a 'nametag' phrase (@bob) and get the hex token id for that phrase
+Then, the dapp can ask the contract for the owner of the token with that id!   This is the account holding the nametag
+*/
 
 function phraseToTokenIdHex(phrase)
 {
