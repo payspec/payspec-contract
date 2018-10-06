@@ -1,5 +1,5 @@
-var _0xBitcoinToken = artifacts.require("./_0xBitcoinToken.sol");
+var NametagToken = artifacts.require("./NametagToken.sol");
 
 module.exports = function(deployer) {
-  deployer.deploy(_0xBitcoinToken);
+  deployer.deploy(NametagToken,'Nametag Token','NTT');
 };

@@ -76,7 +76,11 @@ contract NametagToken  is ERC165, ERC721, IERC721Metadata {
   }
 
 
-  function bytes32ToString(bytes32 x) constant returns (string) {
+  function bytes32ToTokenId(bytes32 x) public constant returns (uint256) {
+    return  (uint256) (keccak256(x));
+  }
+
+  function bytes32ToString(bytes32 x) public constant returns (string) {
     bytes memory bytesString = new bytes(32);
     uint charCount = 0;
     for (uint j = 0; j < 32; j++) {
@@ -116,7 +120,7 @@ contract NametagToken  is ERC165, ERC721, IERC721Metadata {
    * Throws if the token ID does not exist. May return an empty string.
    * @param tokenId uint256 ID of the token to query
    */
-  function tokenURI(uint256 tokenId) public view returns (string) {
+  function getNametagFromTokenId(uint256 tokenId) public view returns (string) {
     require(_exists(tokenId));
     return _tokenURIs[tokenId];
   }
