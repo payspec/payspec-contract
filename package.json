@@ -1,5 +1,5 @@
 {
-  "name": "ethergoods",
+  "name": "nametag-token",
   "engines": {
     "node": ">=7.6"
   },
@@ -10,7 +10,8 @@
     "test": "test"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "flatten": "truffle-flattener ./contracts/NametagToken.sol > ./contracts/NametagTokenFlattened.sol",
+    "test": "truffle test"
   },
   "repository": {
     "type": "git",
