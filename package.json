@@ -32,5 +32,8 @@
     "js-sha3": "^0.6.1",
     "leftpad": "^0.0.1",
     "web3": "^1.0.0-beta.27"
+  },
+  "devDependencies": {
+    "truffle-flattener": "^1.2.9"
   }
 }
