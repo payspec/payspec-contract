@@ -1,31 +1,5 @@
 pragma solidity ^0.4.24;
 
-
-
-
-/*
-
-NAMETAG TOKEN
-
-An ERC721 non-fungible token with the hash of your unique Alias imprinted upon it.
-
-Register your handle by minting a new token with that handle.
-Then, others can send Ethereum Assets directly to you handle (not your address) by sending it to the account which holds that token!
-
-________
-
-For example, one could register the handle @bob and then alice can use wallet services to send payments to @bob.
-The wallet will be ask this contract which account the @bob token resides in and will send the payment there!
-
-*/
-
-
-
-
-
-
-
-
 // File: contracts/util/IERC165.sol
 
 /**
@@ -589,6 +563,22 @@ contract IERC721Metadata is IERC721 {
 
 // File: contracts/NametagToken.sol
 
+/*
+
+NAMETAG TOKEN
+
+An ERC721 non-fungible token with the hash of your unique Alias imprinted upon it.
+
+Register your handle by minting a new token with that handle.
+Then, others can send Ethereum Assets directly to you handle (not your address) by sending it to the account which holds that token!
+
+________
+
+For example, one could register the handle @bob and then alice can use wallet services to send payments to @bob.
+The wallet will be ask this contract which account the @bob token resides in and will send the payment there!
+
+*/
+
 
 
 contract NametagToken  is ERC165, ERC721, IERC721Metadata {
@@ -634,8 +624,10 @@ contract NametagToken  is ERC165, ERC721, IERC721Metadata {
     returns (bool)
   {
 
-    uint256 tokenId = (uint256) (keccak256(name));
-    string memory metadata = bytes32ToString(name);
+    string memory lowerName = _toLower(name);
+
+    uint256 tokenId = (uint256) (keccak256(lowerName));
+    string memory metadata = bytes32ToString(lowerName);
 
     _mint(to, tokenId);
     _setTokenURI(tokenId, metadata);
@@ -643,11 +635,14 @@ contract NametagToken  is ERC165, ERC721, IERC721Metadata {
   }
 
 
-  function bytes32ToTokenId(bytes32 x) public constant returns (uint256) {
-    return  (uint256) (keccak256(x));
+  function bytes32ToTokenId(bytes32 name) public constant returns (uint256) {
+
+    string memory lowerName = _toLower(name);
+
+    return  (uint256) (keccak256(lowerName));
   }
 
-  function bytes32ToString(bytes32 x) public constant returns (string) {
+  function bytes32ToString(bytes32 x) internal constant returns (string) {
     bytes memory bytesString = new bytes(32);
     uint charCount = 0;
     for (uint j = 0; j < 32; j++) {
@@ -664,7 +659,20 @@ contract NametagToken  is ERC165, ERC721, IERC721Metadata {
       return string(bytesStringTrimmed);
   }
 
-
+  function _toLower(string str) internal returns (string) {
+  		bytes memory bStr = bytes(str);
+  		bytes memory bLower = new bytes(bStr.length);
+  		for (uint i = 0; i < bStr.length; i++) {
+  			// Uppercase character...
+  			if ((bStr[i] >= 65) && (bStr[i] <= 90)) {
+  				// So we add 32 to make it lowercase
+  				bLower[i] = bytes1(int(bStr[i]) + 32);
+  			} else {
+  				bLower[i] = bStr[i];
+  			}
+  		}
+  		return string(bLower);
+  	}
 
   /**
    * @dev Gets the token name
@@ -682,15 +690,19 @@ contract NametagToken  is ERC165, ERC721, IERC721Metadata {
     return _symbol;
   }
 
+
+
+
   /**
    * @dev Returns an URI for a given token ID
    * Throws if the token ID does not exist. May return an empty string.
    * @param tokenId uint256 ID of the token to query
    */
-  function getNametagFromTokenId(uint256 tokenId) public view returns (string) {
+  function tokenURI(uint256 tokenId) public view returns (string) {
     require(_exists(tokenId));
     return _tokenURIs[tokenId];
   }
+
 
   /**
    * @dev Internal function to set the token URI for a given token
