@@ -565,9 +565,9 @@ contract IERC721Metadata is IERC721 {
 
 /*
 
-NAMETAG TOKEN
+HASHTAG TOKEN
 
-An ERC721 non-fungible token with the hash of your unique Alias imprinted upon it.
+An ERC721 non-fungible token with the hash of your unique lowercased Alias imprinted upon it.
 
 Register your handle by minting a new token with that handle.
 Then, others can send Ethereum Assets directly to you handle (not your address) by sending it to the account which holds that token!
@@ -581,7 +581,7 @@ The wallet will be ask this contract which account the @bob token resides in and
 
 
 
-contract NametagToken  is ERC165, ERC721, IERC721Metadata {
+contract HashtagToken  is ERC165, ERC721, IERC721Metadata {
   // Token name
   string internal _name;
 
@@ -616,9 +616,9 @@ contract NametagToken  is ERC165, ERC721, IERC721Metadata {
 
 
 
-  function claimNametagToken(
+  function claimToken(
     address to,
-    bytes32 name
+    string name
   )
     public
     returns (bool)
@@ -627,37 +627,22 @@ contract NametagToken  is ERC165, ERC721, IERC721Metadata {
     string memory lowerName = _toLower(name);
 
     uint256 tokenId = (uint256) (keccak256(lowerName));
-    string memory metadata = bytes32ToString(lowerName);
+
 
     _mint(to, tokenId);
-    _setTokenURI(tokenId, metadata);
+    _setTokenURI(tokenId, lowerName);
     return true;
   }
 
 
-  function bytes32ToTokenId(bytes32 name) public constant returns (uint256) {
+  function nameToTokenId(string name) public constant returns (uint256) {
 
     string memory lowerName = _toLower(name);
 
     return  (uint256) (keccak256(lowerName));
   }
 
-  function bytes32ToString(bytes32 x) internal constant returns (string) {
-    bytes memory bytesString = new bytes(32);
-    uint charCount = 0;
-    for (uint j = 0; j < 32; j++) {
-        byte char = byte(bytes32(uint(x) * 2 ** (8 * j)));
-        if (char != 0) {
-            bytesString[charCount] = char;
-            charCount++;
-        }
-    }
-    bytes memory bytesStringTrimmed = new bytes(charCount);
-    for (j = 0; j < charCount; j++) {
-        bytesStringTrimmed[j] = bytesString[j];
-    }
-      return string(bytesStringTrimmed);
-  }
+ 
 
   function _toLower(string str) internal returns (string) {
   		bytes memory bStr = bytes(str);
