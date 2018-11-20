@@ -8,9 +8,9 @@ import "./util/ERC165.sol";
 
 /*
 
-NAMETAG TOKEN
+HASHTAG TOKEN
 
-An ERC721 non-fungible token with the hash of your unique Alias imprinted upon it.
+An ERC721 non-fungible token with the hash of your unique lowercased Alias imprinted upon it.
 
 Register your handle by minting a new token with that handle.
 Then, others can send Ethereum Assets directly to you handle (not your address) by sending it to the account which holds that token!
@@ -24,7 +24,7 @@ The wallet will be ask this contract which account the @bob token resides in and
 
 
 
-contract NametagToken  is ERC165, ERC721, IERC721Metadata {
+contract HashtagToken  is ERC165, ERC721, IERC721Metadata {
   // Token name
   string internal _name;
 
@@ -59,7 +59,7 @@ contract NametagToken  is ERC165, ERC721, IERC721Metadata {
 
 
 
-  function claimNametagToken(
+  function claimToken(
     address to,
     bytes32 name
   )
