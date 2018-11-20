@@ -66,6 +66,7 @@ contract HashtagToken  is ERC165, ERC721, IERC721Metadata {
     public
     returns (bool)
   {
+    require(containsOnlyAlphaNumerics(name));
 
     string memory lowerName = _toLower(name);
 
@@ -85,9 +86,23 @@ contract HashtagToken  is ERC165, ERC721, IERC721Metadata {
     return  (uint256) (keccak256(lowerName));
   }
 
- 
+  function containsOnlyAlphaNumerics(string str) public constant returns (bool) {
+      bytes memory bStr = bytes(str);
 
-  function _toLower(string str) internal returns (string) {
+      for (uint i = 0; i < bStr.length; i++) {
+        if (  ((bStr[i] >= 48) && (bStr[i] <= 57))
+            || ((bStr[i] >= 65) && (bStr[i] <= 90))
+            || ((bStr[i] >= 97) && (bStr[i] <= 122)) == false  ) {
+          return false;
+        }
+      }
+
+      return true;
+
+    }
+
+
+  function _toLower(string str) public constant returns (string) {
   		bytes memory bStr = bytes(str);
   		bytes memory bLower = new bytes(bStr.length);
   		for (uint i = 0; i < bStr.length; i++) {
