@@ -1,5 +1,22 @@
-pragma solidity ^0.4.24;
+pragma solidity 0.5.0;
 
+/*
+
+NAMETAG TOKEN
+
+V1.0.0
+
+An ERC721 non-fungible token with the hash of your unique lowercased Alias imprinted upon it.
+
+Register your handle by minting a new token with that handle.
+Then, others can send Ethereum Assets directly to you handle (not your address) by sending it to the account which holds that token!
+
+________
+
+For example, one could register the handle @bob and then alice can use wallet services to send payments to @bob.
+The wallet will be ask this contract which account the @bob token resides in and will send the payment there!
+
+*/
 // File: contracts/util/IERC165.sol
 
 /**
@@ -63,7 +80,7 @@ contract IERC721 is IERC165 {
     address from,
     address to,
     uint256 tokenId,
-    bytes data
+    bytes memory data
   )
     public;
 }
@@ -94,7 +111,7 @@ contract IERC721Receiver {
     address operator,
     address from,
     uint256 tokenId,
-    bytes data
+    bytes memory data
   )
     public
     returns(bytes4);
@@ -419,7 +436,7 @@ contract ERC721 is ERC165, IERC721 {
     address from,
     address to,
     uint256 tokenId,
-    bytes _data
+    bytes memory _data
   )
     public
   {
@@ -535,7 +552,7 @@ contract ERC721 is ERC165, IERC721 {
     address from,
     address to,
     uint256 tokenId,
-    bytes _data
+    bytes memory _data
   )
     internal
     returns (bool)
@@ -556,37 +573,21 @@ contract ERC721 is ERC165, IERC721 {
  * @dev See https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md
  */
 contract IERC721Metadata is IERC721 {
-  function name() external view returns (string);
-  function symbol() external view returns (string);
-  function tokenURI(uint256 tokenId) public view returns (string);
+  function name() external view returns (string memory name);
+  function symbol() external view returns (string memory symbol);
+  function tokenURI(uint256 tokenId) public view returns (string memory uri);
 }
 
 // File: contracts/NametagToken.sol
 
-/*
-
-HASHTAG TOKEN
-
-An ERC721 non-fungible token with the hash of your unique lowercased Alias imprinted upon it.
-
-Register your handle by minting a new token with that handle.
-Then, others can send Ethereum Assets directly to you handle (not your address) by sending it to the account which holds that token!
-
-________
-
-For example, one could register the handle @bob and then alice can use wallet services to send payments to @bob.
-The wallet will be ask this contract which account the @bob token resides in and will send the payment there!
-
-*/
 
 
-
-contract HashtagToken  is ERC165, ERC721, IERC721Metadata {
+contract NametagToken  is ERC165, ERC721, IERC721Metadata {
   // Token name
-  string internal _name;
+  string internal _name = 'NametagToken';
 
   // Token symbol
-  string internal _symbol;
+  string internal _symbol = 'NTT';
 
   // Optional mapping for token URIs
   mapping(uint256 => string) private _tokenURIs;
@@ -604,9 +605,7 @@ contract HashtagToken  is ERC165, ERC721, IERC721Metadata {
     /**
      * @dev Constructor function
      */
-    constructor(string name, string symbol) public {
-      _name = name;
-      _symbol = symbol;
+    constructor( ) public {
 
       // register the supported interfaces to conform to ERC721 via ERC165
       _registerInterface(InterfaceId_ERC721Metadata);
@@ -616,18 +615,13 @@ contract HashtagToken  is ERC165, ERC721, IERC721Metadata {
 
 
 
-  function claimToken(
-    address to,
-    string name
-  )
-    public
-    returns (bool)
+  function claimToken( address to,  string memory name  ) public  returns (bool)
   {
     require(containsOnlyAlphaNumerics(name));
 
     string memory lowerName = _toLower(name);
 
-    uint256 tokenId = (uint256) (keccak256(lowerName));
+    uint256 tokenId = (uint256) (keccak256(abi.encodePacked(lowerName)));
 
 
     _mint(to, tokenId);
@@ -636,20 +630,20 @@ contract HashtagToken  is ERC165, ERC721, IERC721Metadata {
   }
 
 
-  function nameToTokenId(string name) public constant returns (uint256) {
+  function nameToTokenId(string memory name) public view returns (uint256) {
 
     string memory lowerName = _toLower(name);
 
-    return  (uint256) (keccak256(lowerName));
+    return  (uint256) (keccak256(abi.encodePacked(lowerName)));
   }
 
-  function containsOnlyAlphaNumerics(string str) public constant returns (bool) {
+  function containsOnlyAlphaNumerics(string memory str) public view returns (bool) {
       bytes memory bStr = bytes(str);
 
       for (uint i = 0; i < bStr.length; i++) {
-        if (  ((bStr[i] >= 48) && (bStr[i] <= 57))
-            || ((bStr[i] >= 65) && (bStr[i] <= 90))
-            || ((bStr[i] >= 97) && (bStr[i] <= 122)) == false  ) {
+        if (  ((bStr[i] >= 0x30) && (bStr[i] <= 0x39))
+            || ((bStr[i] >= 0x41) && (bStr[i] <= 0x5A))
+            || ((bStr[i] >= 0x61) && (bStr[i] <= 0x7A)) == false  ) {
           return false;
         }
       }
@@ -659,7 +653,52 @@ contract HashtagToken  is ERC165, ERC721, IERC721Metadata {
     }
 
 
-  function _toLower(string str) public constant returns (string) {
+
+    /**
+        * Lower
+        *
+        * Converts all the values of a string to their corresponding lower case
+        * value.
+        *
+        * @param _base When being used for a data type this is the extended object
+        *              otherwise this is the string base to convert to lower case
+        * @return string
+        */
+       function _toLower(string memory  _base)
+           internal
+           pure
+           returns (string memory str) {
+           bytes memory _baseBytes = bytes(_base);
+           for (uint i = 0; i < _baseBytes.length; i++) {
+               _baseBytes[i] = _lower(_baseBytes[i]);
+           }
+           return string(_baseBytes);
+       }
+
+
+    /**
+    * Lower
+    *
+    * Convert an alphabetic character to lower case and return the original
+    * value when not alphabetic
+    *
+    * @param _b1 The byte to be converted to lower case
+    * @return bytes1 The converted value if the passed value was alphabetic
+    *                and in a upper case otherwise returns the original value
+    */
+   function _lower(bytes1 _b1)
+       private
+       pure
+       returns (bytes1) {
+
+       if (_b1 >= 0x41 && _b1 <= 0x5A) {
+           return bytes1(uint8(_b1)+32);
+       }
+
+       return _b1;
+   }
+
+/*  function _toLower(string memory str) public view returns (string memory str) {
   		bytes memory bStr = bytes(str);
   		bytes memory bLower = new bytes(bStr.length);
   		for (uint i = 0; i < bStr.length; i++) {
@@ -672,13 +711,13 @@ contract HashtagToken  is ERC165, ERC721, IERC721Metadata {
   			}
   		}
   		return string(bLower);
-  	}
+  	}*/
 
   /**
    * @dev Gets the token name
    * @return string representing the token name
    */
-  function name() external view returns (string) {
+  function name() external view returns (string memory name) {
     return _name;
   }
 
@@ -686,9 +725,9 @@ contract HashtagToken  is ERC165, ERC721, IERC721Metadata {
    * @dev Gets the token symbol
    * @return string representing the token symbol
    */
-  function symbol() external view returns (string) {
-    return _symbol;
-  }
+   function symbol() external view returns (string memory symbol) {
+      return _symbol;
+   }
 
 
 
@@ -698,7 +737,7 @@ contract HashtagToken  is ERC165, ERC721, IERC721Metadata {
    * Throws if the token ID does not exist. May return an empty string.
    * @param tokenId uint256 ID of the token to query
    */
-  function tokenURI(uint256 tokenId) public view returns (string) {
+  function tokenURI(uint256 tokenId) public view returns (string memory uti) {
     require(_exists(tokenId));
     return _tokenURIs[tokenId];
   }
@@ -710,7 +749,7 @@ contract HashtagToken  is ERC165, ERC721, IERC721Metadata {
    * @param tokenId uint256 ID of the token to set its URI
    * @param uri string URI to assign
    */
-  function _setTokenURI(uint256 tokenId, string uri) internal {
+  function _setTokenURI(uint256 tokenId, string memory uri) internal {
     require(_exists(tokenId));
     _tokenURIs[tokenId] = uri;
   }

@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity 0.5.0;
 
 import "./IERC721Receiver.sol";
 
@@ -7,7 +7,7 @@ contract ERC721Holder is IERC721Receiver {
     address,
     address,
     uint256,
-    bytes
+    bytes memory
   )
     public
     returns(bytes4)

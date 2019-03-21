@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity 0.5.0;
 
 /**
  * @title ERC721 token receiver interface
@@ -24,7 +24,7 @@ contract IERC721Receiver {
     address operator,
     address from,
     uint256 tokenId,
-    bytes data
+    bytes memory data
   )
     public
     returns(bytes4);
