@@ -55,21 +55,24 @@ contract NametagToken  is ERC721Enumerable, IERC721Metadata {
 
 
 
+    function reserveToken( address to, uint256 tokenId ) public  returns (bool)
+    {
+        reservedTokenId[tokenId] = to;
+        return true;
+    }
 
+    function claimToken( address to,  string memory name  ) public  returns (bool)
+    {
+      require(containsOnlyLower(name));
 
-  function claimToken( address to,  string memory name  ) public  returns (bool)
-  {
-    require(containsOnlyAlphaNumerics(name));
+      uint256 tokenId = (uint256) (keccak256(abi.encodePacked(name)));
 
-    string memory lowerName = _toLower(name);
+      require( reservedTokenId[tokenId] == address(0x0) || reservedTokenId[tokenId] == to  );
 
-    uint256 tokenId = (uint256) (keccak256(abi.encodePacked(lowerName)));
-
-
-    _mint(to, tokenId);
-    _setTokenURI(tokenId, lowerName);
-    return true;
-  }
+      _mint(to, tokenId);
+      _setTokenURI(tokenId, lowerName);
+      return true;
+    }
 
 
   function nameToTokenId(string memory name) public view returns (uint256) {
@@ -83,9 +86,11 @@ contract NametagToken  is ERC721Enumerable, IERC721Metadata {
       bytes memory bStr = bytes(str);
 
       for (uint i = 0; i < bStr.length; i++) {
-        if (  ((bStr[i] >= 0x30) && (bStr[i] <= 0x39))
-            || ((bStr[i] >= 0x41) && (bStr[i] <= 0x5A))
-            || ((bStr[i] >= 0x61) && (bStr[i] <= 0x7A)) == false  ) {
+          bytes1   char = bStr[i];
+
+          if ( !( ((char >= 0x30) && (char <= 0x39))
+                || ((char >= 0x41) && (char <= 0x5A))
+                  || ((char >= 0x61) && (char <= 0x7A)) )   ) {
           return false;
         }
       }
@@ -93,6 +98,21 @@ contract NametagToken  is ERC721Enumerable, IERC721Metadata {
       return true;
 
     }
+
+    function containsOnlyLower(string memory str) public view returns (bool) {
+        bytes memory bStr = bytes(str);
+
+        for (uint i = 0; i < bStr.length; i++) {
+            bytes1   char = bStr[i];
+
+            if ( !((char >= 0x61) && (char <= 0x7A))   ) {
+            return false;
+          }
+        }
+
+        return true;
+
+      }
 
 
 
@@ -139,7 +159,7 @@ contract NametagToken  is ERC721Enumerable, IERC721Metadata {
 
        return _b1;
    }
- 
+
 
   /**
    * @dev Gets the token name
