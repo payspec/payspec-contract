@@ -33,7 +33,7 @@ contract NametagToken  is ERC721Enumerable, IERC721Metadata {
 
   // Optional mapping for token URIs
   mapping(uint256 => string) private _tokenURIs;
-
+  mapping(uint256 => address) private reservedTokenId;
 
 
     bytes4 private constant InterfaceId_ERC721Metadata = 0x5b5e139f;
