@@ -70,7 +70,7 @@ contract NametagToken  is ERC721Enumerable, IERC721Metadata {
       require( reservedTokenId[tokenId] == address(0x0) || reservedTokenId[tokenId] == to  );
 
       _mint(to, tokenId);
-      _setTokenURI(tokenId, lowerName);
+      _setTokenURI(tokenId, name);
       return true;
     }
 

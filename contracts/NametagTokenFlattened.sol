@@ -13,7 +13,7 @@ Then, others can send Ethereum Assets directly to you handle (not your address) 
 ________
 
 For example, one could register the handle @bob and then alice can use wallet services to send payments to @bob.
-The wallet will be ask this contract which account the @bob token resides in and will send the payment there!
+The wallet will ask this contract which account the @bob token resides in and will send the payment to that address.
 
 */
 
@@ -838,13 +838,13 @@ contract NametagToken  is ERC721Enumerable, IERC721Metadata {
   function claimToken( address to,  string memory name  ) public  returns (bool)
   {
     require(containsOnlyLower(name));
- 
+
     uint256 tokenId = (uint256) (keccak256(abi.encodePacked(name)));
 
     require( reservedTokenId[tokenId] == address(0x0) || reservedTokenId[tokenId] == to  );
 
     _mint(to, tokenId);
-    _setTokenURI(tokenId, lowerName);
+    _setTokenURI(tokenId, name);
     return true;
   }
 
