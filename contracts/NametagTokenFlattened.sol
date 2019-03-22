@@ -1,4 +1,3 @@
-pragma solidity 0.5.0;
 
 /*
 
@@ -17,7 +16,10 @@ For example, one could register the handle @bob and then alice can use wallet se
 The wallet will be ask this contract which account the @bob token resides in and will send the payment there!
 
 */
+
 // File: contracts/util/IERC165.sol
+
+pragma solidity 0.5.0;
 
 /**
  * @title IERC165
@@ -38,6 +40,9 @@ interface IERC165 {
 }
 
 // File: contracts/ERC721/IERC721.sol
+
+pragma solidity 0.5.0;
+
 
 /**
  * @title ERC721 Non-Fungible Token Standard basic interface
@@ -85,7 +90,31 @@ contract IERC721 is IERC165 {
     public;
 }
 
+// File: contracts/ERC721/IERC721Enumerable.sol
+
+pragma solidity 0.5.0;
+
+
+/**
+ * @title ERC-721 Non-Fungible Token Standard, optional enumeration extension
+ * @dev See https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md
+ */
+contract IERC721Enumerable is IERC721 {
+  function totalSupply() public view returns (uint256);
+  function tokenOfOwnerByIndex(
+    address owner,
+    uint256 index
+  )
+    public
+    view
+    returns (uint256 tokenId);
+
+  function tokenByIndex(uint256 index) public view returns (uint256);
+}
+
 // File: contracts/ERC721/IERC721Receiver.sol
+
+pragma solidity 0.5.0;
 
 /**
  * @title ERC721 token receiver interface
@@ -118,6 +147,9 @@ contract IERC721Receiver {
 }
 
 // File: contracts/util/SafeMath.sol
+
+pragma solidity 0.5.0;
+
 
 /**
  * @title SafeMath
@@ -167,6 +199,8 @@ library SafeMath {
 
 // File: contracts/util/Address.sol
 
+pragma solidity 0.5.0;
+
 /**
  * Utility library of inline functions on addresses
  */
@@ -195,6 +229,9 @@ library Address {
 }
 
 // File: contracts/util/ERC165.sol
+
+pragma solidity 0.5.0;
+
 
 /**
  * @title ERC165
@@ -247,6 +284,13 @@ contract ERC165 is IERC165 {
 }
 
 // File: contracts/ERC721/ERC721.sol
+
+pragma solidity 0.5.0;
+
+
+
+
+
 
 /**
  * @title ERC721 Non-Fungible Token Standard basic implementation
@@ -566,7 +610,157 @@ contract ERC721 is ERC165, IERC721 {
   }
 }
 
+// File: contracts/ERC721/ERC721Enumerable.sol
+
+pragma solidity 0.5.0;
+
+
+
+
+contract ERC721Enumerable is ERC165, ERC721, IERC721Enumerable {
+  // Mapping from owner to list of owned token IDs
+  mapping(address => uint256[]) private _ownedTokens;
+
+  // Mapping from token ID to index of the owner tokens list
+  mapping(uint256 => uint256) private _ownedTokensIndex;
+
+  // Array with all token ids, used for enumeration
+  uint256[] private _allTokens;
+
+  // Mapping from token id to position in the allTokens array
+  mapping(uint256 => uint256) private _allTokensIndex;
+
+  bytes4 private constant _InterfaceId_ERC721Enumerable = 0x780e9d63;
+  /**
+   * 0x780e9d63 ===
+   *   bytes4(keccak256('totalSupply()')) ^
+   *   bytes4(keccak256('tokenOfOwnerByIndex(address,uint256)')) ^
+   *   bytes4(keccak256('tokenByIndex(uint256)'))
+   */
+
+  /**
+   * @dev Constructor function
+   */
+  constructor() public {
+    // register the supported interface to conform to ERC721 via ERC165
+    _registerInterface(_InterfaceId_ERC721Enumerable);
+  }
+
+  /**
+   * @dev Gets the token ID at a given index of the tokens list of the requested owner
+   * @param owner address owning the tokens list to be accessed
+   * @param index uint256 representing the index to be accessed of the requested tokens list
+   * @return uint256 token ID at the given index of the tokens list owned by the requested address
+   */
+  function tokenOfOwnerByIndex(
+    address owner,
+    uint256 index
+  )
+    public
+    view
+    returns (uint256)
+  {
+    require(index < balanceOf(owner));
+    return _ownedTokens[owner][index];
+  }
+
+  /**
+   * @dev Gets the total amount of tokens stored by the contract
+   * @return uint256 representing the total amount of tokens
+   */
+  function totalSupply() public view returns (uint256) {
+    return _allTokens.length;
+  }
+
+  /**
+   * @dev Gets the token ID at a given index of all the tokens in this contract
+   * Reverts if the index is greater or equal to the total number of tokens
+   * @param index uint256 representing the index to be accessed of the tokens list
+   * @return uint256 token ID at the given index of the tokens list
+   */
+  function tokenByIndex(uint256 index) public view returns (uint256) {
+    require(index < totalSupply());
+    return _allTokens[index];
+  }
+
+  /**
+   * @dev Internal function to add a token ID to the list of a given address
+   * @param to address representing the new owner of the given token ID
+   * @param tokenId uint256 ID of the token to be added to the tokens list of the given address
+   */
+  function _addTokenTo(address to, uint256 tokenId) internal {
+    super._addTokenTo(to, tokenId);
+    uint256 length = _ownedTokens[to].length;
+    _ownedTokens[to].push(tokenId);
+    _ownedTokensIndex[tokenId] = length;
+  }
+
+  /**
+   * @dev Internal function to remove a token ID from the list of a given address
+   * @param from address representing the previous owner of the given token ID
+   * @param tokenId uint256 ID of the token to be removed from the tokens list of the given address
+   */
+  function _removeTokenFrom(address from, uint256 tokenId) internal {
+    super._removeTokenFrom(from, tokenId);
+
+    // To prevent a gap in the array, we store the last token in the index of the token to delete, and
+    // then delete the last slot.
+    uint256 tokenIndex = _ownedTokensIndex[tokenId];
+    uint256 lastTokenIndex = _ownedTokens[from].length.sub(1);
+    uint256 lastToken = _ownedTokens[from][lastTokenIndex];
+
+    _ownedTokens[from][tokenIndex] = lastToken;
+    // This also deletes the contents at the last position of the array
+    _ownedTokens[from].length--;
+
+    // Note that this will handle single-element arrays. In that case, both tokenIndex and lastTokenIndex are going to
+    // be zero. Then we can make sure that we will remove tokenId from the ownedTokens list since we are first swapping
+    // the lastToken to the first position, and then dropping the element placed in the last position of the list
+
+    _ownedTokensIndex[tokenId] = 0;
+    _ownedTokensIndex[lastToken] = tokenIndex;
+  }
+
+  /**
+   * @dev Internal function to mint a new token
+   * Reverts if the given token ID already exists
+   * @param to address the beneficiary that will own the minted token
+   * @param tokenId uint256 ID of the token to be minted by the msg.sender
+   */
+  function _mint(address to, uint256 tokenId) internal {
+    super._mint(to, tokenId);
+
+    _allTokensIndex[tokenId] = _allTokens.length;
+    _allTokens.push(tokenId);
+  }
+
+  /**
+   * @dev Internal function to burn a specific token
+   * Reverts if the token does not exist
+   * @param owner owner of the token to burn
+   * @param tokenId uint256 ID of the token being burned by the msg.sender
+   */
+  function _burn(address owner, uint256 tokenId) internal {
+    super._burn(owner, tokenId);
+
+    // Reorg all tokens array
+    uint256 tokenIndex = _allTokensIndex[tokenId];
+    uint256 lastTokenIndex = _allTokens.length.sub(1);
+    uint256 lastToken = _allTokens[lastTokenIndex];
+
+    _allTokens[tokenIndex] = lastToken;
+    _allTokens[lastTokenIndex] = 0;
+
+    _allTokens.length--;
+    _allTokensIndex[tokenId] = 0;
+    _allTokensIndex[lastToken] = tokenIndex;
+  }
+}
+
 // File: contracts/ERC721/IERC721Metadata.sol
+
+pragma solidity 0.5.0;
+
 
 /**
  * @title ERC-721 Non-Fungible Token Standard, optional metadata extension
@@ -580,9 +774,31 @@ contract IERC721Metadata is IERC721 {
 
 // File: contracts/NametagToken.sol
 
+pragma solidity 0.5.0;
 
 
-contract NametagToken  is ERC165, ERC721, IERC721Metadata {
+
+
+
+/*
+
+NAMETAG TOKEN
+
+An ERC721 non-fungible token with the hash of your unique lowercased Alias imprinted upon it.
+
+Register your handle by minting a new token with that handle.
+Then, others can send Ethereum Assets directly to you handle (not your address) by sending it to the account which holds that token!
+
+________
+
+For example, one could register the handle @bob and then alice can use wallet services to send payments to @bob.
+The wallet will be ask this contract which account the @bob token resides in and will send the payment there!
+
+*/
+
+
+
+contract NametagToken  is ERC721Enumerable, IERC721Metadata {
   // Token name
   string internal _name = 'NametagToken';
 
@@ -698,20 +914,7 @@ contract NametagToken  is ERC165, ERC721, IERC721Metadata {
        return _b1;
    }
 
-/*  function _toLower(string memory str) public view returns (string memory str) {
-  		bytes memory bStr = bytes(str);
-  		bytes memory bLower = new bytes(bStr.length);
-  		for (uint i = 0; i < bStr.length; i++) {
-  			// Uppercase character...
-  			if ((bStr[i] >= 65) && (bStr[i] <= 90)) {
-  				// So we add 32 to make it lowercase
-  				bLower[i] = bytes1(int(bStr[i]) + 32);
-  			} else {
-  				bLower[i] = bStr[i];
-  			}
-  		}
-  		return string(bLower);
-  	}*/
+ 
 
   /**
    * @dev Gets the token name

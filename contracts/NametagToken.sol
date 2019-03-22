@@ -1,7 +1,7 @@
 pragma solidity 0.5.0;
 
 
-import "./ERC721/ERC721.sol";
+import "./ERC721/ERC721Enumerable.sol";
 import "./ERC721/IERC721Metadata.sol";
 import "./util/ERC165.sol";
 
@@ -24,7 +24,7 @@ The wallet will be ask this contract which account the @bob token resides in and
 
 
 
-contract NametagToken  is ERC165, ERC721, IERC721Metadata {
+contract NametagToken  is ERC721Enumerable, IERC721Metadata {
   // Token name
   string internal _name = 'NametagToken';
 
@@ -139,21 +139,7 @@ contract NametagToken  is ERC165, ERC721, IERC721Metadata {
 
        return _b1;
    }
-
-/*  function _toLower(string memory str) public view returns (string memory str) {
-  		bytes memory bStr = bytes(str);
-  		bytes memory bLower = new bytes(bStr.length);
-  		for (uint i = 0; i < bStr.length; i++) {
-  			// Uppercase character...
-  			if ((bStr[i] >= 65) && (bStr[i] <= 90)) {
-  				// So we add 32 to make it lowercase
-  				bLower[i] = bytes1(int(bStr[i]) + 32);
-  			} else {
-  				bLower[i] = bStr[i];
-  			}
-  		}
-  		return string(bLower);
-  	}*/
+ 
 
   /**
    * @dev Gets the token name
