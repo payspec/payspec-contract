@@ -1,5 +1,5 @@
-var NametagToken = artifacts.require("./NametagToken.sol");
+var SendERC = artifacts.require("./SendERC.sol");
 
 module.exports = function(deployer) {
-  deployer.deploy(NametagToken,'Nametag Token','NTT');
+  deployer.deploy(SendERC);
 };

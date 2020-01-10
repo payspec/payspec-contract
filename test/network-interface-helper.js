@@ -146,7 +146,7 @@ module.exports =  {
       data: txData
     }
 
-    // fire away! 
+    // fire away!
 
   return new Promise(function (result,error) {
 
