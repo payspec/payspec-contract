@@ -160,14 +160,24 @@ contract PaySpec  {
        return uuid;
    }
 
-   function payInvoice( bytes32 invoiceUUID, address from) public returns (bool) {
+   function payInvoice(bytes32 invoiceUUID) public returns (bool)
+   {
+     //transfer the tokens into escrow into this contract to stage for paying the invoice
+     require( ERC20Interface(  invoices[invoiceUUID].token ).transferFrom(msg.sender, address(this),  invoices[invoiceUUID].amountDue )   );
+
+     return _payInvoiceInternal( invoiceUUID, msg.sender);
+
+
+   }
+
+   function _payInvoiceInternal( bytes32 invoiceUUID, address from ) private returns (bool) {
 
        require( invoices[invoiceUUID].uuid == invoiceUUID ); //make sure invoice exists
        require( invoiceWasPaid(invoiceUUID) == false );
        require( invoiceHasExpired(invoiceUUID) == false);
 
-       //transfer the tokens
-       require( ERC20Interface( invoices[invoiceUUID].token  ).transferFrom( from ,  invoices[invoiceUUID].payTo, invoices[invoiceUUID].amountDue   ) );
+       //Transfer the tokens. Always transfer from this contracts escrow (not wildcard) so tokens only approved to this universal contract cannot be spent by others.
+       require( ERC20Interface( invoices[invoiceUUID].token  ).transfer(  invoices[invoiceUUID].payTo, invoices[invoiceUUID].amountDue   ) );
 
        invoices[invoiceUUID].amountPaid = invoices[invoiceUUID].amountDue;
 
@@ -208,7 +218,13 @@ contract PaySpec  {
    */
      function receiveApproval(address from, uint256 tokens, address token, bytes memory data) public returns (bool) {
 
-        require(  payInvoice(bytesToBytes32(data,0), from)  );
+        //can only be called by the token contract
+        require(msg.sender == token);
+
+        //transfer the tokens into escrow into this contract to stage for paying the invoice
+        require( ERC20Interface(token).transferFrom(from, address(this), tokens)   );
+
+        require(  _payInvoiceInternal(bytesToBytes32(data,0), from)  );
 
         return true;
 

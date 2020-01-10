@@ -1,16 +1,14 @@
 
- ## NAMETAG TOKEN
+ ## SendERC PaySpec
 
-An ERC721 non-fungible token with the hash of your unique Alias imprinted upon it.
-
-Register your handle by minting a new token with that handle.
-Then, others can send Ethereum Assets directly to you handle (not your address) by sending it to the account which holds that token!
+An Invoice System for ERC20 Tokens that helps merchants accept payment from users with a simple API.
 
 ________
 
-For example, one could register the handle @bob and then alice can use wallet services to send payments to @bob.
-The wallet will be ask this contract which account the @bob token resides in and will send the payment there!
+Potential Issues:
 
+-Any tokens that get 'approved' to the contract can be spent by someone else on invoices.   
+-overpaying on an invoice is allowed.  If this happens, more tokens will be approved than necessary. 
 
 
 

@@ -10,8 +10,7 @@
     "test": "test"
   },
   "scripts": {
-    "flatten": "truffle-flattener ./contracts/NametagToken.sol > ./contracts/NametagTokenFlattened.sol",
-    "test": "truffle test"
+     "test": "truffle test"
   },
   "repository": {
     "type": "git",
