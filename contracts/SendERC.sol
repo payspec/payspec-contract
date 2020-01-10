@@ -135,7 +135,7 @@ contract PaySpec  {
 
       uint256 ethBlockCreatedAt = block.number;
 
-      bytes32 newuuid = keccak256( abi.encodePacked( refNumber, description,  token, amountDue, payTo, ethBlockCreatedAt ) );
+      bytes32 newuuid = keccak256( abi.encodePacked( refNumber, description,  token, amountDue, payTo ) );
 
       require( invoices[newuuid].uuid == 0 );  //make sure you do not overwrite invoices
 
