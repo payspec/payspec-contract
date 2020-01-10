@@ -94,7 +94,7 @@ contract PaySpec  {
   struct Invoice {
     bytes32 uuid;
     string description;
-    uint256 nonce;
+    uint256 invoiceNumber;
 
 
     address token;
@@ -128,21 +128,21 @@ contract PaySpec  {
 
 
 
-   function createInvoice(  string memory description, uint256 nonce, address token, uint256 amountDue, address payTo, uint256 ethBlockExpiresAt ) public returns (uint uuid) {
+   function createInvoice(  uint256 invoiceNumber, string memory description,  address token, uint256 amountDue, address payTo, uint256 ethBlockExpiresAt ) public returns (uint uuid) {
 
 
 
 
       uint256 ethBlockCreatedAt = block.number;
 
-      bytes32 newuuid = keccak256( abi.encodePacked( description, nonce, token, amountDue, payTo, ethBlockCreatedAt ) );
+      bytes32 newuuid = keccak256( abi.encodePacked( invoiceNumber, description,  token, amountDue, payTo, ethBlockCreatedAt ) );
 
       require( invoices[newuuid].uuid == 0 );  //make sure you do not overwrite invoices
 
       invoices[newuuid] = Invoice({
-       uuid:newuuid,
-       description:description,
-       nonce: nonce,
+       uuid: newuuid,
+       description: description,
+       invoiceNumber: invoiceNumber,
        token: token,
        amountDue: amountDue,
        payTo: payTo,
