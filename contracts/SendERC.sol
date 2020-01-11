@@ -135,7 +135,7 @@ contract PaySpec  {
 
       uint256 ethBlockCreatedAt = block.number;
 
-      bytes32 newuuid = keccak256( abi.encodePacked( refNumber, description,  token, amountDue, payTo ) );
+      bytes32 newuuid = keccak256( abi.encodePacked(msg.sender, refNumber, description,  token, amountDue, payTo ) );
 
       require( invoices[newuuid].uuid == 0 );  //make sure you do not overwrite invoices
 
@@ -214,6 +214,12 @@ contract PaySpec  {
        return invoices[invoiceUUID].token;
    }
 
+   function getRecipientAddress( bytes32 invoiceUUID ) public view returns (address)
+   {
+       return invoices[invoiceUUID].payTo;
+   }
+
+
    function getAmountDue( bytes32 invoiceUUID ) public view returns (uint)
    {
        return invoices[invoiceUUID].amountDue;
@@ -221,7 +227,7 @@ contract PaySpec  {
 
    function getEthBlockPaidAt( bytes32 invoiceUUID ) public view returns (uint)
    {
-       return invoices[invoiceUUID].amountDue;
+       return invoices[invoiceUUID].ethBlockPaidAt;
    }
 
 
