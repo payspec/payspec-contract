@@ -219,6 +219,11 @@ contract PaySpec  {
        return invoices[invoiceUUID].payTo;
    }
 
+   function invoiceExists ( bytes32 invoiceUUID ) public view returns (bool)
+   {
+     return invoices[invoiceUUID].uuid == invoiceUUID;
+   }
+
 
    function getAmountDue( bytes32 invoiceUUID ) public view returns (uint)
    {
