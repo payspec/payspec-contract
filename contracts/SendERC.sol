@@ -126,6 +126,12 @@ contract PaySpec  {
   }
 
 
+  function getContractVersion( ) public pure returns (uint)
+  {
+      return 0;
+  }
+
+
 
 
    function createInvoice(  uint256 refNumber, string memory description,  address token, uint256 amountDue, address payTo, uint256 ethBlockExpiresAt ) public returns (uint uuid) {
@@ -253,6 +259,8 @@ contract PaySpec  {
    {
        return (getEthBlockExpiredAt(invoiceUUID) != 0 && block.number >= getEthBlockExpiredAt(invoiceUUID));
    }
+
+
 
    /*
      Receive approval from ApproveAndCall() to pay invoice.  The first 32 bytes of the data array are used for the invoice UUID bytes32.
