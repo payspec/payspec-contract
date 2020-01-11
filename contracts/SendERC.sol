@@ -194,6 +194,38 @@ contract PaySpec  {
 
    }
 
+   function getDescription( bytes32 invoiceUUID ) public view returns (int)
+   {
+       return invoices[invoiceUUID].description;
+   }
+
+   function getRefNumber( bytes32 invoiceUUID ) public view returns (int)
+   {
+       return invoices[invoiceUUID].refNumber;
+   }
+
+   function getEthBlockExpiredAt( bytes32 invoiceUUID ) public view returns (int)
+   {
+       return invoices[invoiceUUID].ethBlockExpiresAt;
+   }
+
+   function getTokenAddress( bytes32 invoiceUUID ) public view returns (int)
+   {
+       return invoices[invoiceUUID].token;
+   }
+
+   function getAmountDue( bytes32 invoiceUUID ) public view returns (int)
+   {
+       return invoices[invoiceUUID].amountDue;
+   }
+
+   function getEthBlockPaidAt( bytes32 invoiceUUID ) public view returns (int)
+   {
+       return invoices[invoiceUUID].amountDue;
+   }
+
+
+
 
    function invoiceWasPaid( bytes32 invoiceUUID ) public view returns (bool)
    {
@@ -201,15 +233,9 @@ contract PaySpec  {
    }
 
 
-
-   function invoiceExpiresAt( bytes32 invoiceUUID ) public view returns (uint)
-   {
-       return invoices[invoiceUUID].ethBlockExpiresAt;
-   }
-
    function invoiceHasExpired( bytes32 invoiceUUID ) public view returns (bool)
    {
-       return (invoiceExpiresAt(invoiceUUID) != 0 && block.number >= invoiceExpiresAt(invoiceUUID));
+       return (getEthBlockExpiredAt(invoiceUUID) != 0 && block.number >= getEthBlockExpiredAt(invoiceUUID));
    }
 
    /*
