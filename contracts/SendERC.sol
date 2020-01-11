@@ -128,20 +128,29 @@ contract PaySpec  {
 
   function getContractVersion( ) public pure returns (uint)
   {
-      return 0;
+      return 1;
   }
 
 
+  function createInvoice(uint256 refNumber, string memory description,  address token, uint256 amountDue, address payTo, uint256 ethBlockExpiresAt ) public returns (bytes32 uuid) {
+      return _createInvoiceInternal(msg.sender, refNumber,description,token,amountDue,payTo,ethBlockExpiresAt);
+  }
+
+  function createAndPayInvoice(uint256 refNumber, string memory description,  address token, uint256 amountDue, address payTo, uint256 ethBlockExpiresAt ) public returns (bool) {
+      bytes32 uuid =  _createInvoiceInternal(msg.sender, refNumber,description,token,amountDue,payTo,ethBlockExpiresAt) ;
 
 
-   function createInvoice(  uint256 refNumber, string memory description,  address token, uint256 amountDue, address payTo, uint256 ethBlockExpiresAt ) public returns (uint uuid) {
+      require( payInvoice(uuid) );
 
+      return true;
 
+  }
 
+   function _createInvoiceInternal( address from, uint256 refNumber, string memory description,  address token, uint256 amountDue, address payTo, uint256 ethBlockExpiresAt ) private returns (bytes32 uuid) {
 
       uint256 ethBlockCreatedAt = block.number;
 
-      bytes32 newuuid = keccak256( abi.encodePacked(msg.sender, refNumber, description,  token, amountDue, payTo ) );
+      bytes32 newuuid = keccak256( abi.encodePacked(from, refNumber, description,  token, amountDue, payTo ) );
 
       require( invoices[newuuid].uuid == 0 );  //make sure you do not overwrite invoices
 
