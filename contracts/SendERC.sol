@@ -225,6 +225,11 @@ contract PaySpec  {
        return invoices[invoiceUUID].amountDue;
    }
 
+   function getAmountPaid( bytes32 invoiceUUID ) public view returns (uint)
+   {
+       return invoices[invoiceUUID].amountPaid;
+   }
+
    function getEthBlockPaidAt( bytes32 invoiceUUID ) public view returns (uint)
    {
        return invoices[invoiceUUID].ethBlockPaidAt;
