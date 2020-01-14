@@ -137,13 +137,11 @@ contract PaySpec  {
   }
 
   function createAndPayInvoice(uint256 refNumber, string memory description,  address token, uint256 amountDue, address payTo, uint256 ethBlockExpiresAt ) public returns (bool) {
-      bytes32 uuid =  _createInvoiceInternal(msg.sender, refNumber,description,token,amountDue,payTo,ethBlockExpiresAt) ;
+      bytes32 invoiceUUID =  _createInvoiceInternal(msg.sender, refNumber,description,token,amountDue,payTo,ethBlockExpiresAt) ;
 
+      require( ERC20Interface(  invoices[invoiceUUID].token ).transferFrom(msg.sender, address(this),  invoices[invoiceUUID].amountDue )   );
 
-      require( payInvoice(uuid) );
-
-      return true;
-
+      return _payInvoiceInternal( invoiceUUID, msg.sender);
   }
 
    function _createInvoiceInternal( address from, uint256 refNumber, string memory description,  address token, uint256 amountDue, address payTo, uint256 ethBlockExpiresAt ) private returns (bytes32 uuid) {
