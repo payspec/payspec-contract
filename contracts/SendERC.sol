@@ -171,7 +171,7 @@ contract PaySpec  {
 
        emit CreatedInvoice(newuuid);
 
-       return uuid;
+       return newuuid;
    }
 
    function payInvoice(bytes32 invoiceUUID) public returns (bool)
