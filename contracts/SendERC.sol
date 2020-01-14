@@ -136,6 +136,7 @@ contract PaySpec  {
       return _createInvoiceInternal(msg.sender, refNumber,description,token,amountDue,payTo,ethBlockExpiresAt);
   }
 
+  //why doesnt this work ?
   function createAndPayInvoice(uint256 refNumber, string memory description,  address token, uint256 amountDue, address payTo, uint256 ethBlockExpiresAt ) public returns (bool) {
       bytes32 invoiceUUID =  _createInvoiceInternal(msg.sender, refNumber,description,token,amountDue,payTo,ethBlockExpiresAt) ;
 
@@ -217,7 +218,7 @@ contract PaySpec  {
        return invoices[invoiceUUID].refNumber;
    }
 
-   function getEthBlockExpiredAt( bytes32 invoiceUUID ) public view returns (uint)
+   function getEthBlockExpiresAt( bytes32 invoiceUUID ) public view returns (uint)
    {
        return invoices[invoiceUUID].ethBlockExpiresAt;
    }
@@ -254,17 +255,15 @@ contract PaySpec  {
    }
 
 
-
-
    function invoiceWasPaid( bytes32 invoiceUUID ) public view returns (bool)
    {
-       return invoices[invoiceUUID].amountPaid >= invoices[invoiceUUID].amountDue;
+       return getEthBlockPaidAt(invoiceUUID) > 0;
    }
 
 
    function invoiceHasExpired( bytes32 invoiceUUID ) public view returns (bool)
    {
-       return (getEthBlockExpiredAt(invoiceUUID) != 0 && block.number >= getEthBlockExpiredAt(invoiceUUID));
+       return (getEthBlockExpiresAt(invoiceUUID) != 0 && block.number >= getEthBlockExpiresAt(invoiceUUID));
    }
 
 
