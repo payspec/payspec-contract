@@ -128,48 +128,54 @@ contract PaySpec  {
 
   function getContractVersion( ) public pure returns (uint)
   {
-      return 1;
+      return 3;
   }
 
 
   function createInvoice(uint256 refNumber, string memory description,  address token, uint256 amountDue, address payTo, uint256 ethBlockExpiresAt ) public returns (bytes32 uuid) {
-      return _createInvoiceInternal(msg.sender, refNumber,description,token,amountDue,payTo,ethBlockExpiresAt);
+      return _createInvoiceInternal(false, refNumber,description,token,amountDue,payTo,ethBlockExpiresAt);
   }
 
   //why doesnt this work ?
   function createAndPayInvoice(uint256 refNumber, string memory description,  address token, uint256 amountDue, address payTo, uint256 ethBlockExpiresAt ) public returns (bool) {
-      bytes32 invoiceUUID =  _createInvoiceInternal(msg.sender, refNumber,description,token,amountDue,payTo,ethBlockExpiresAt) ;
+      bytes32 invoiceUUID =  _createInvoiceInternal(true, refNumber,description,token,amountDue,payTo,ethBlockExpiresAt) ;
 
       require( ERC20Interface(  invoices[invoiceUUID].token ).transferFrom(msg.sender, address(this),  invoices[invoiceUUID].amountDue )   );
 
       return _payInvoiceInternal( invoiceUUID, msg.sender);
   }
 
-   function _createInvoiceInternal( address from, uint256 refNumber, string memory description,  address token, uint256 amountDue, address payTo, uint256 ethBlockExpiresAt ) private returns (bytes32 uuid) {
+   function _createInvoiceInternal( bool optional, uint256 refNumber, string memory description,  address token, uint256 amountDue, address payTo, uint256 ethBlockExpiresAt ) private returns (bytes32 uuid) {
 
       uint256 ethBlockCreatedAt = block.number;
 
-      bytes32 newuuid = keccak256( abi.encodePacked(from, refNumber, description,  token, amountDue, payTo ) );
+      bytes32 newuuid = keccak256( abi.encodePacked( refNumber, description,  token, amountDue, payTo, ethBlockExpiresAt ) );
 
-      require( invoices[newuuid].uuid == 0 );  //make sure you do not overwrite invoices
+      bool invoiceSlotEmpty = (invoices[newuuid].uuid == 0);
 
-      invoices[newuuid] = Invoice({
-       uuid: newuuid,
-       description: description,
-       refNumber: refNumber,
-       token: token,
-       amountDue: amountDue,
-       payTo: payTo,
-       ethBlockCreatedAt: ethBlockCreatedAt,
-       paidBy: address(0),
-       amountPaid: 0,
-       ethBlockPaidAt: 0,
-       ethBlockExpiresAt: ethBlockExpiresAt
+      if(!optional){
+        require( invoiceSlotEmpty );  //make sure you do not overwrite invoices unless optional
+      }
 
-      });
+      if(invoiceSlotEmpty)
+      {
+          invoices[newuuid] = Invoice({
+           uuid: newuuid,
+           description: description,
+           refNumber: refNumber,
+           token: token,
+           amountDue: amountDue,
+           payTo: payTo,
+           ethBlockCreatedAt: ethBlockCreatedAt,
+           paidBy: address(0),
+           amountPaid: 0,
+           ethBlockPaidAt: 0,
+           ethBlockExpiresAt: ethBlockExpiresAt
 
+          });
 
-       emit CreatedInvoice(newuuid);
+          emit CreatedInvoice(newuuid);
+       }
 
        return newuuid;
    }
