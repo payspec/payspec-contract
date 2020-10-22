@@ -5,13 +5,7 @@ An Invoice System for ERC20 Tokens that helps merchants accept payment from user
 
 ________
 
-Potential Issues:
-
--Any tokens that get 'approved' to the contract can be spent by someone else on invoices.   
--overpaying on an invoice is allowed.  If this happens, more tokens will be approved than necessary.
-
-
-
+ 
 ## HOW TO TEST
 
 npm install -g ganache-cli  (https://github.com/trufflesuite/ganache-cli)
