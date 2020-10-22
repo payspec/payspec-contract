@@ -35,7 +35,7 @@ Imagine a situation where one party, the 'seller', wants to sell an asset 'X' fo
       createAndPayInvoice(  string memory description, uint256 nonce, address token, uint256 amountDue, address payTo, address[] memory feeAddresses, uint[] memory feePercents, uint256 ethBlockExpiresAt, bytes32 expecteduuid  ) public returns (bool)  
   
    
-   This method will make the pre-approved ERC20 tokens in quantity 'AmountDue' flow from the buyer's account and into the sellers account and it will permanently mark this invoice as being 'paid' so that anyone can check the UUID and the contract will report that it has been 'paid'.  At that point, the seller (or a bot running by the seller) can check the 'paid' status of the corresponding UUID and deliver the sold asset to the buyer.  This does require that the buyer trust the seller to actually deliver the item.  
+   This method will make the pre-approved ERC20 tokens in quantity 'AmountDue' flow from the buyer's account and into the sellers account and it will permanently mark this invoice as being 'paid'.  Now, the seller (or a bot) can check the 'paid' status of the corresponding UUID and deliver the sold asset to the buyer.  This does require that the buyer trust the seller to actually deliver the item.  
    
    
    Considerations:
