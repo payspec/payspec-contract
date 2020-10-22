@@ -17,10 +17,10 @@ module.exports =  {
      var payTo =invoiceData.payTo;
 
      var feeAddresses = {t: 'address[]' , v:invoiceData.feeAddresses}
-     var feePercents = {t: 'uint256[]' , v:invoiceData.feePercents}
+     var feePercents = {t: 'uint[]' , v:invoiceData.feePercents}
      var expiresAt =invoiceData.expiresAt;
 
-   
+
 
      return web3utils.soliditySha3(
        payspecContractAddress,
