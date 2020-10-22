@@ -39,7 +39,7 @@ Imagine a situation where one party, the 'seller', wants to sell an asset 'X' fo
    
    
    Considerations:
- If the buyer tries to change any of the data, the UUID will change and the the order will not be considered paid. The UUID is the SHA3 hash of all of the invoice data, including the contract address. 
+ * If the buyer tries to change any of the data, the UUID will change and the the order will not be considered paid. The UUID is the SHA3 hash of all of the invoice data, including the contract address. 
     
     
    
