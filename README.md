@@ -59,5 +59,3 @@ npm install -g ganache-cli  (https://github.com/trufflesuite/ganache-cli)
 > npm run test
 
 
-### Published contracts on ROPSTEN
-https://ropsten.etherscan.io/address/0x8536d19aeeaadd64e9e7caf8681a45d38a5126ad#code
