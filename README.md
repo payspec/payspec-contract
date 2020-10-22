@@ -39,7 +39,7 @@ Imagine a situation where one party, the 'seller', wants to sell an asset 'X' fo
    
    
    Considerations:
- * If the buyer tries to change any of the data, the UUID will be differently and so the order will not be considered paid by the seller. The UUID is the SHA3 hash of all of the invoice data, including the contract address. 
+ * If the buyer tries to change any of the data, the UUID will be different and so the order will not be considered paid by the seller. The UUID is the SHA3 hash of all of the invoice data, including the contract address. 
  * An invoice can only be paid once
  * Invoices automatically expire based on block number (if expiration is not 0)
  * Invoices can be cancelled by the seller with an onchain tx 
