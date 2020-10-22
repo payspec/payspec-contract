@@ -12,10 +12,10 @@ Imagine a situation where one party, the 'seller', wants to sell an asset 'X' fo
     let newInvoiceData = {
       description: 'assetXname', //can be anything
       nonce: 2, //randomly generated number 
-      token: fixedSupplyToken.options.address,  //contract address of token for payment 
+      token: 0xb6...,  //contract address of token for payment 
       amountDue: 100,   //raw amount of token to pay this invoice 
-      payTo: sellerAddress,   
-      feeAddresses: [ feeAccount ],  //addresses of any third parties that should take a % fee for this transaction, like a website this invoice flows through  (optional) 
+      payTo: 0x...., //sellerAddress   
+      feeAddresses: [ 0x... ],  //addresses of any third parties that should take a % fee for this transaction, like a website this invoice flows through  (optional) 
       feePercents: [ 2 ], //fee amounts of feeAddresses
       expiresAt: 0    //block number that this invoice will expire on (0 for never expire) 
     }
