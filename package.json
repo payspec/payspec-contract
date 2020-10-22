@@ -1,5 +1,5 @@
 {
-  "name": "nametag-token",
+  "name": "payspec-contract",
   "engines": {
     "node": ">=7.6"
   },
