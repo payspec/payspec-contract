@@ -182,6 +182,73 @@ contract('payspecV2',(accounts) => {
 
 
 
+        it("invoice can be cancelled ", async function () {
+
+
+
+
+        let newInvoiceData = {
+          description: 'testtx3',
+          nonce: 3,
+          token: fixedSupplyToken.options.address,
+          amountDue: 100,
+          payTo: myAccount,
+          feeAddresses: [ feeAccount ],
+          feePercents: [ 2 ],
+          expiresAt: 0
+        }
+
+        let getInvoiceUUIDArgsArray = Object.values(newInvoiceData)
+
+        let actualInvoiceUUID;
+
+        try {
+           actualInvoiceUUID=  await payspecV2.methods.getInvoiceUUID.apply(this,getInvoiceUUIDArgsArray).call({ from: myAccount }) ;
+        } catch (error) {
+         console.trace(error)
+        }
+
+
+
+          //inject the contract address here just to get the expected UUID in an offchain way
+          let expecteduuid = PayspecHelper.getExpectedInvoiceUUID( Object.assign( {payspecContractAddress: payspecV2.options.address }, newInvoiceData )  )
+
+
+          assert.equal( expecteduuid,actualInvoiceUUID );
+
+          let finalInvoiceData = Object.assign(  newInvoiceData, {expecteduuid: expecteduuid } )
+
+
+          try {
+            await fixedSupplyToken.methods.approve(payspecV2.options.address, 10000).send({ from: myAccount, gas:3000000 })
+          } catch (error) {
+            assert.fail("Method Reverted", "approve",  error.reason);
+          }
+
+
+
+
+          let createAndPayArgsArray = Object.values( finalInvoiceData )
+
+            console.log( 'finalInvoiceData', finalInvoiceData  , createAndPayArgsArray)
+
+            let success;
+
+              try {
+                success = await payspecV2.methods.cancelInvoice.apply(this, createAndPayArgsArray ).send({ from: myAccount, gas:3000000 }) ;
+              } catch (error) {
+                console.trace( error )
+              }
+
+
+                assert.ok(success);
+
+
+        });
+
+
+
+
 
 
 
@@ -191,7 +258,7 @@ contract('payspecV2',(accounts) => {
 });
 
 
- 
+
 
 
 
