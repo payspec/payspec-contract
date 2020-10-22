@@ -5,7 +5,6 @@ PAYSPEC: Generic invoicing contract
 
 Generate offchain invoices based on sell-order data and allow users to fulfill those order invoices onchain.
 
-A pre-defined fee is collected from payments and sent to contract owner.
 */
 
 /**
