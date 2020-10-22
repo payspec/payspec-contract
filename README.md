@@ -28,7 +28,7 @@ Imagine a situation where one party, the 'seller', wants to sell an asset 'X' fo
   This will give the seller the universally unique ID (UUID) corresponding to this invoice.  No other invoice will ever have this particular UUID and the seller will use this UUID in order to track and trace whether or not this invoice is paid.
   
   
-  Now, the seller gives this invoice data to potential buyers along with the UUID (or the buyer can compute the UUID temselves.)  
+  Now, the seller gives this invoice data to potential buyers along with the UUID (or the buyer can compute the UUID.)  
   
   The buyer will approve tokens to the Payspec contract and then call this method: 
 
