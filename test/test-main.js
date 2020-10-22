@@ -48,7 +48,7 @@ contract('payspecV2',(accounts) => {
 
 
 
-    await fixedSupplyToken.methods.transfer(counterpartyAccount, 1000000 ).send({from:myAccount})
+  //  await fixedSupplyToken.methods.transfer(counterpartyAccount, 1000000 ).send({from:myAccount})
 
 
     assert.ok(fixedSupplyToken);
@@ -102,13 +102,6 @@ contract('payspecV2',(accounts) => {
 
 
 
-  try {
-    await payspecV2.methods.createAndPayInvoice.apply(argsArray).send({ from: myAccount, gas:3000000 }) ;
-  } catch (error) {
-    assert.fail("Method Reverted", "depositNFT",  error.reason);
-  }
-
-
 
   });
 
@@ -124,7 +117,7 @@ contract('payspecV2',(accounts) => {
       nonce: 2,
       token: fixedSupplyToken.options.address,
       amountDue: 100,
-      payTo: myAccount,
+      payTo: counterpartyAccount,
       feeAddresses: [ feeAccount ],
       feePercents: [ 2 ],
       expiresAt: 0
@@ -151,6 +144,13 @@ contract('payspecV2',(accounts) => {
       let finalInvoiceData = Object.assign(  newInvoiceData, {expecteduuid: expecteduuid } )
 
 
+      try {
+        await fixedSupplyToken.methods.approve(payspecV2.options.address, 10000).send({ from: myAccount, gas:3000000 })
+      } catch (error) {
+        assert.fail("Method Reverted", "approve",  error.reason);
+      }
+
+
 
 
       let createAndPayArgsArray = Object.values( finalInvoiceData )
@@ -165,7 +165,17 @@ contract('payspecV2',(accounts) => {
             console.trace( error )
           }
 
-      assert.ok(success);
+
+            assert.ok(success);
+
+          let myBalance =   await fixedSupplyToken.methods.balanceOf(myAccount).call( )
+          let counterpartyBalance =   await fixedSupplyToken.methods.balanceOf(counterpartyAccount).call( )
+          let feeBalance =   await fixedSupplyToken.methods.balanceOf(feeAccount).call( )
+
+
+            assert.equal(myBalance,2099999999999900);
+            assert.equal(counterpartyBalance,98);
+            assert.equal(feeBalance,2);
 
     });
 
