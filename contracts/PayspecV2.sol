@@ -125,7 +125,7 @@ contract Owned {
 
 
 
-contract PaySpecV2 is Owned {
+contract PayspecV2 is Owned {
 
    using SafeMath for uint;
 
@@ -151,7 +151,7 @@ contract PaySpecV2 is Owned {
     address token;
     uint256 amountDue;
     address payTo;
-    
+
     address[] feeAddresses;
     uint[] feePercents;
 
@@ -160,14 +160,14 @@ contract PaySpecV2 is Owned {
     uint256 ethBlockPaidAt;
 
 
-    uint256 ethBlockExpiresAt; 
+    uint256 ethBlockExpiresAt;
 
   }
 
 
 
   constructor(   ) public {
-    
+
   }
 
 
@@ -182,9 +182,9 @@ contract PaySpecV2 is Owned {
 
 
    function cancelInvoice(   string memory description, uint256 nonce, address token, uint256 amountDue, address payTo, address[] memory feeAddresses, uint[] memory feePercents, uint256 ethBlockExpiresAt, bytes32 expecteduuid   ) public returns (bool) {
-    
-     address from = msg.sender; 
-    
+
+     address from = msg.sender;
+
      bytes32 invoiceUUID = getInvoiceUUID(description, nonce, token, amountDue, payTo, feeAddresses, feePercents,  ethBlockExpiresAt ) ;
 
      require(!lockedByOwner);
@@ -192,10 +192,10 @@ contract PaySpecV2 is Owned {
      require( payTo == from );  //can only cancel your own orders
      require( invoiceWasCreated(invoiceUUID) == false );
      require( invoiceWasCancelled(invoiceUUID) == false);
-      
+
       cancelledInvoiceUUIDs[invoiceUUID] = true;
-      
-      
+
+
       emit CancelledInvoice(invoiceUUID);
     }
 
@@ -208,7 +208,7 @@ contract PaySpecV2 is Owned {
 
    function _createInvoice(  string memory description, uint256 nonce, address token, uint256 amountDue, address payTo, address[] memory feeAddresses, uint[] memory feePercents, uint256 ethBlockExpiresAt, bytes32 expecteduuid ) private returns (bytes32 uuid) {
 
-     
+
 
       bytes32 newuuid = getInvoiceUUID(description, nonce, token, amountDue, payTo, feeAddresses, feePercents,  ethBlockExpiresAt ) ;
 
@@ -216,7 +216,7 @@ contract PaySpecV2 is Owned {
       require( newuuid == expecteduuid );
       require( invoices[newuuid].uuid == 0 );  //make sure you do not overwrite invoices
       require(feeAddresses.length == feePercents.length);
-      
+
       invoices[newuuid] = Invoice({
        uuid:newuuid,
        description:description,
@@ -251,30 +251,30 @@ contract PaySpecV2 is Owned {
 
        uint totalAmountDueInFees = 0; // invoices[invoiceUUID].amountDue.mul( fee_pct ).div(100);
 
-      
-    
-          for(uint i=0;i<invoices[invoiceUUID].feeAddresses.length;i++){ 
-              uint amtDueInFees =  invoices[invoiceUUID].amountDue.mul( invoices[invoiceUUID].feePercents[i] ).div(100);  
-            
-              //transfer each fee 
+
+
+          for(uint i=0;i<invoices[invoiceUUID].feeAddresses.length;i++){
+              uint amtDueInFees =  invoices[invoiceUUID].amountDue.mul( invoices[invoiceUUID].feePercents[i] ).div(100);
+
+              //transfer each fee
               require( ERC20Interface( invoices[invoiceUUID].token  ).transferFrom( from ,  invoices[invoiceUUID].feeAddresses[i], amtDueInFees) );
-     
+
               totalAmountDueInFees = totalAmountDueInFees.add( amtDueInFees );
           }
-      
-      
-        require(totalAmountDueInFees <= invoices[invoiceUUID].amountDue );
-       
 
-      
+
+        require(totalAmountDueInFees <= invoices[invoiceUUID].amountDue );
+
+
+
         uint amountDueLessFees =  invoices[invoiceUUID].amountDue.sub( totalAmountDueInFees );
         require( totalAmountDueInFees.add(amountDueLessFees) ==  invoices[invoiceUUID].amountDue );
-        
+
       //transfer the tokens to the seller
        require( ERC20Interface( invoices[invoiceUUID].token  ).transferFrom( from ,  invoices[invoiceUUID].payTo, amountDueLessFees  ) );
-    
-    
-     
+
+
+
 
        invoices[invoiceUUID].amountPaid = invoices[invoiceUUID].amountDue;
 
@@ -290,13 +290,13 @@ contract PaySpecV2 is Owned {
 
 
    }
-   
-   
-   
+
+
+
    function getInvoiceUUID(  string memory description, uint256 nonce, address token, uint256 amountDue, address payTo, address[] memory feeAddresses, uint[] memory feePercents, uint expiresAt  ) public view returns (bytes32 uuid) {
- 
-         address payspecContractAddress = address(this); //prevent from paying through the wrong contract 
-         
+
+         address payspecContractAddress = address(this); //prevent from paying through the wrong contract
+
          bytes32 newuuid = keccak256( abi.encodePacked(payspecContractAddress, description, nonce, token, amountDue, payTo, feeAddresses, feePercents, expiresAt ) );
 
          return newuuid;
@@ -306,35 +306,35 @@ contract PaySpecV2 is Owned {
 
        return invoices[invoiceUUID].amountPaid >= invoices[invoiceUUID].amountDue;
    }
-   
+
    function invoiceWasCreated( bytes32 invoiceUUID ) public view returns (bool){
 
        return invoices[invoiceUUID].created ;
    }
-   
-   
-   
+
+
+
     function getInvoiceDescription( bytes32 invoiceUUID ) public view returns (string memory){
 
        return invoices[invoiceUUID].description;
    }
-   
+
    function getInvoiceTokenCurrency( bytes32 invoiceUUID ) public view returns (address){
 
        return invoices[invoiceUUID].token;
    }
-   
-   
+
+
    function getInvoiceAmountPaid( bytes32 invoiceUUID ) public view returns (uint){
 
        return invoices[invoiceUUID].amountPaid;
    }
-   
+
    function getInvoicePayer( bytes32 invoiceUUID ) public view returns (address){
 
        return invoices[invoiceUUID].paidBy;
    }
-   
+
    function getInvoiceEthBlockPaidAt( bytes32 invoiceUUID ) public view returns (uint){
 
        return invoices[invoiceUUID].ethBlockPaidAt;
@@ -351,12 +351,12 @@ contract PaySpecV2 is Owned {
 
        return (invoiceExpiresAt(invoiceUUID) != 0 && block.number >= invoiceExpiresAt(invoiceUUID));
    }
-   
+
    function invoiceWasCancelled( bytes32 invoiceUUID ) public view returns (bool){
 
       return cancelledInvoiceUUIDs[invoiceUUID]  ;
    }
-   
+
     function invoiceWasDisabled( bytes32 invoiceUUID ) public view returns (bool){
 
       return invoiceWasCancelled(invoiceUUID) || invoiceHasExpired(invoiceUUID);

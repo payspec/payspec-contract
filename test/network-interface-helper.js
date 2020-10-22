@@ -1,5 +1,5 @@
 
-var web3Utils = require('web3-utils')
+var web3utils = require('web3-utils')
 //var ContractInterface = require("../contracts/DeployedContractInfo")
 
 

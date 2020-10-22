@@ -10,7 +10,8 @@
     "test": "test"
   },
   "scripts": {
-     "test": "truffle test"
+    "ganache": "ganache-cli",
+    "test": "truffle test"
   },
   "repository": {
     "type": "git",

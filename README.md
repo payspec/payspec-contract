@@ -8,16 +8,16 @@ ________
 Potential Issues:
 
 -Any tokens that get 'approved' to the contract can be spent by someone else on invoices.   
--overpaying on an invoice is allowed.  If this happens, more tokens will be approved than necessary. 
+-overpaying on an invoice is allowed.  If this happens, more tokens will be approved than necessary.
 
 
 
 ## HOW TO TEST
 
-npm install -g ethereumjs-testrpc  (https://github.com/ethereumjs/testrpc)
-testrpc
+npm install -g ganache-cli  (https://github.com/trufflesuite/ganache-cli)
+> npm run ganache
 
-truffle test
+> npm run test
 
 
 ### Published contracts on ROPSTEN
