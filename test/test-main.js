@@ -14,14 +14,15 @@ const { getWeb3, getContractInstance } = require("./web3helpers")
 const web3 = getWeb3()
 const getInstance = getContractInstance(web3)
 
+const PayspecHelper = require('./payspec-helper')
 
 var web3utils = web3.utils;
 
 
-var assetId;
+
 var myAccount;
 var counterpartyAccount;
-
+var feeAccount;
 
 
 contract('payspecV2',(accounts) => {
@@ -40,6 +41,8 @@ contract('payspecV2',(accounts) => {
 
     myAccount = accounts[0];
     counterpartyAccount = accounts[1];
+    feeAccount = accounts[2];
+
       console.log('my acct ', myAccount )
       console.log('counterparty acct ', counterpartyAccount )
 
@@ -55,7 +58,7 @@ contract('payspecV2',(accounts) => {
 
 
 
-  it("invoice can be created and paid", async function () {
+  it("invoice can be created with proper uuid ", async function () {
 
 
 
@@ -63,8 +66,48 @@ contract('payspecV2',(accounts) => {
   console.log('eth balance is ', balance)
 
 
+  let newInvoiceData = {
+    description: 'testtx',
+    nonce: 1,
+    token: fixedSupplyToken.options.address,
+    amountDue: 100,
+    payTo: myAccount,
+    feeAddresses: [ feeAccount ],
+    feePercents: [ 2 ],
+    expiresAt: 0
+  }
 
 
+
+  let getInvoiceUUIDArgsArray = Object.values(newInvoiceData)
+  let actualInvoiceUUID;
+
+  try {
+     actualInvoiceUUID=  await payspecV2.methods.getInvoiceUUID.apply(this,getInvoiceUUIDArgsArray).call({ from: myAccount }) ;
+  } catch (error) {
+   console.trace(error)
+  }
+
+
+    console.log('actualInvoiceUUID',actualInvoiceUUID)
+    assert.ok(actualInvoiceUUID);
+
+
+    newInvoiceData.payspecContractAddress = payspecV2.options.address
+
+    let expecteduuid = PayspecHelper.getExpectedInvoiceUUID( newInvoiceData )
+
+
+    assert.equal(expecteduuid, actualInvoiceUUID);
+
+
+/*
+  try {
+    await payspecV2.methods.createAndPayInvoice.apply(argsArray).send({ from: myAccount, gas:3000000 }) ;
+  } catch (error) {
+    assert.fail("Method Reverted", "depositNFT",  error.reason);
+  }
+*/
 
 
   });
