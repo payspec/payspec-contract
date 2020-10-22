@@ -43,6 +43,7 @@ Imagine a situation where one party, the 'seller', wants to sell an asset 'X' fo
  * An invoice can only be paid once
  * Invoices automatically expire based on block number (if expiration is not 0)
  * Invoices can be cancelled by the seller with an onchain tx 
+ * Invoices are created by sellers offchain
     
     
    
