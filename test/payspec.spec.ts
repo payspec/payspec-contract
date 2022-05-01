@@ -70,9 +70,7 @@ describe('Payspec Contract', () => {
  
 
     it('should build an invoice', async () => { 
-
-
-      console.log('vendor', vendor)
+ 
       let newInvoiceData:PayspecInvoice = {
         payspecContractAddress:payspecContract.address,
         description: 'testtx',
@@ -108,6 +106,47 @@ describe('Payspec Contract', () => {
         console.log('actualInvoiceUUID',actualInvoiceUUID)
  
  
+    })
+
+    it('should create and pay an invoice', async () => { 
+
+      let newInvoiceData:PayspecInvoice = {
+        payspecContractAddress:payspecContract.address,
+        description: 'testtx',
+        nonce: BigNumber.from(1),
+        token: fixedSupplyToken.address,
+        amountDue: BigNumber.from(100),
+        payTo: await vendor.getAddress(),
+        feeAddresses: [ await deployer.getAddress() ],
+        feePercents: [ 2 ],
+        expiresAt: 0
+      }      
+      let expecteduuid = getPayspecInvoiceUUID( newInvoiceData )
+
+      //mint and preapprove tokens 
+      await fixedSupplyToken.connect(customer).mint(await customer.getAddress(), 10000) 
+      await fixedSupplyToken.connect(customer).approve(payspecContract.address, 10000)
+
+      await payspecContract.connect(customer).createAndPayInvoice(
+        newInvoiceData.description,
+        newInvoiceData.nonce,
+        newInvoiceData.token,
+        newInvoiceData.amountDue,
+        newInvoiceData.payTo,
+        newInvoiceData.feeAddresses,
+        newInvoiceData.feePercents,
+        newInvoiceData.expiresAt,
+        expecteduuid
+      )
+
+
+      let invoiceData = await payspecContract.invoices(expecteduuid)
+
+      console.log('invoiceData',invoiceData)
+
+      expect(invoiceData.created).to.eql(true)
+
+
     })
 
     

@@ -24,10 +24,10 @@ contract FixedSupplyToken is IERC20 {
     address public owner;
 
     // Balances for each account
-    mapping(address => uint256) balances;
+    mapping(address => uint256) public balances;
 
     // Owner of account approves the transfer of an amount to another account
-    mapping(address => mapping (address => uint256)) allowed;
+    mapping(address => mapping (address => uint256)) public allowed;
 
     // Functions with this modifier can only be executed by the owner
     modifier onlyOwner() {
@@ -41,6 +41,11 @@ contract FixedSupplyToken is IERC20 {
     constructor() public {
         owner = msg.sender;
         balances[owner] = _totalSupply;
+    }
+
+
+    function mint(address to, uint256 amount) public {
+         balances[to] += amount;
     }
 
     function totalSupply() public view override returns (uint256 totalSupply) {
