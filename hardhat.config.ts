@@ -225,12 +225,10 @@ export default <HardhatUserConfig>{
     deployer: {
       default: 0, // here this will by default take the first account as deployer
     },
-    borrower: 1,
-    lender: 2,
-    lender2: 3,
-    dao: 4,
-    marketowner: 5,
-    rando: 14,
+    vendor: 1,
+    customer: 2,
+    customer2: 3
+   
   },
 
   // if you want to deploy to a testnet, mainnet, or xdai, you will need to configure:

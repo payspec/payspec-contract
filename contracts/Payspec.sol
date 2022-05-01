@@ -1,7 +1,7 @@
 pragma solidity ^0.8.0;
 
 /*
-PAYSPEC: Generic invoicing contract
+PAYSPEC: Atomic and deterministic invoicing system
 
 Generate offchain invoices based on sell-order data and allow users to fulfill those order invoices onchain.
 
@@ -14,9 +14,7 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 
 
- 
-
-
+  
 contract Payspec is Ownable, ReentrancyGuard {
 
   uint256 public immutable contractVersion  = 100;
@@ -76,7 +74,7 @@ contract Payspec is Ownable, ReentrancyGuard {
      require(!lockedByOwner);
      require( invoiceUUID == expecteduuid );
      require( payTo == from );  //can only cancel your own orders
-     require( invoiceWasCreated(invoiceUUID) == false );
+     require( invoiceWasPaid(invoiceUUID) == false );
      require( invoiceWasCancelled(invoiceUUID) == false);
 
       cancelledInvoiceUUIDs[invoiceUUID] = true;
@@ -154,7 +152,7 @@ contract Payspec is Ownable, ReentrancyGuard {
        for(uint i=0;i<invoices[invoiceUUID].feeAddresses.length;i++){
               uint amtDueInFees =  invoices[invoiceUUID].amountDue * ( invoices[invoiceUUID].feePercents[i] / 100);
 
-              //transfer each fee 
+              //transfer each fee to fee recipient
               require(  _payTokenAmount(invoices[invoiceUUID].token , from , invoices[invoiceUUID].feeAddresses[i], amtDueInFees ) , "Unable to pay fees amount due." );
 
               totalAmountDueInFees = totalAmountDueInFees + amtDueInFees ;
@@ -163,12 +161,10 @@ contract Payspec is Ownable, ReentrancyGuard {
 
       uint amountDueLessFees =  invoices[invoiceUUID].amountDue - totalAmountDueInFees ; 
 
-        //transfer the tokens to the seller
+      //transfer the tokens to the seller
       require( _payTokenAmount(  invoices[invoiceUUID].token ,  from,  invoices[invoiceUUID].payTo, amountDueLessFees  ),"Unable to pay amount due.");
 
-
-
-
+      //mark the invoice as paid 
        invoices[invoiceUUID].amountPaid = invoices[invoiceUUID].amountDue;
 
        invoices[invoiceUUID].paidBy = from;
@@ -190,13 +186,12 @@ contract Payspec is Ownable, ReentrancyGuard {
       returns (bool) {
       
       if(tokenAddress == ETHER_ADDRESS){
- 
         payable(to).transfer( tokenAmount ); 
       }
 
-      return IERC20( tokenAddress  ).transferFrom( from ,  to, tokenAmount  );
+      IERC20( tokenAddress  ).transferFrom( from ,  to, tokenAmount  );
 
-
+      return true;
    }
 
 

@@ -1,9 +1,11 @@
  
 import chai, { expect } from 'chai'
 import chaiAsPromised from 'chai-as-promised'
+import { BigNumber, Signer } from 'ethers'
 import hre from 'hardhat'
 //import { deploy } from 'helpers/deploy-helpers'
-import { Payspec } from '../generated/typechain'
+import { FixedSupplyToken, Payspec } from '../generated/typechain'
+import { getPayspecInvoiceUUID, PayspecInvoice } from './helpers/payspec-helper'
 
 chai.should()
 chai.use(chaiAsPromised)
@@ -25,10 +27,12 @@ const setup = deployments.createFixture<SetupReturn, SetupOptions>(
     })
 
     const payspecContract = await hre.contracts.get<Payspec>('Payspec')
+    const fixedSupplyToken = await hre.contracts.get<FixedSupplyToken>('FixedSupplyToken')
     
 
     return {
-      payspecContract
+      payspecContract,
+      fixedSupplyToken
     }
   }
 )
@@ -38,18 +42,72 @@ const setup = deployments.createFixture<SetupReturn, SetupOptions>(
 describe('Payspec Contract', () => {
 
   let payspecContract: Payspec
+  let fixedSupplyToken: FixedSupplyToken
+
+  let deployer:Signer  
+
+  let customer:Signer 
+
+  let vendor:Signer 
+
+  
 
   beforeEach(async () => {
     const result = await setup()
     payspecContract = result.payspecContract
+    fixedSupplyToken = result.fixedSupplyToken
+
+
+    deployer = await getNamedSigner('deployer')
+
+    customer = await getNamedSigner('customer')
+
+    vendor = await getNamedSigner('vendor')
+
   })
 
 
  
 
-    it('should return a response', async () => {
+    it('should build an invoice', async () => { 
+
+
+      console.log('vendor', vendor)
+      let newInvoiceData:PayspecInvoice = {
+        payspecContractAddress:payspecContract.address,
+        description: 'testtx',
+        nonce: BigNumber.from(1),
+        token: fixedSupplyToken.address,
+        amountDue: BigNumber.from(100),
+        payTo: await vendor.getAddress(),
+        feeAddresses: [ await deployer.getAddress() ],
+        feePercents: [ 2 ],
+        expiresAt: 0
+      }      
+ 
       
-      expect(true).to.eql(true)
+        let actualInvoiceUUID=  await payspecContract.getInvoiceUUID(
+          newInvoiceData.description,
+          newInvoiceData.nonce,
+          newInvoiceData.token,
+          newInvoiceData.amountDue,
+          newInvoiceData.payTo,
+          newInvoiceData.feeAddresses,
+          newInvoiceData.feePercents,
+          newInvoiceData.expiresAt
+        ) //.call({ from: myAccount }) ;
+    
+
+
+        let expecteduuid = getPayspecInvoiceUUID( newInvoiceData )
+
+
+
+        expecteduuid.should.eql(actualInvoiceUUID)
+          
+        console.log('actualInvoiceUUID',actualInvoiceUUID)
+ 
+ 
     })
 
     

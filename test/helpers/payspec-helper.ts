@@ -1,13 +1,23 @@
+import { BigNumber } from "ethers";
 
 var web3utils = require('web3-utils')
 
 
-module.exports =  {
+export interface PayspecInvoice {
 
-
-
-
-     getExpectedInvoiceUUID( invoiceData )
+    payspecContractAddress: string,
+    description : string,
+    nonce: BigNumber,
+    token: string,
+    amountDue: BigNumber,
+    payTo: string,
+    feeAddresses: Array<string>,
+    feePercents: Array<number>,
+    expiresAt: number
+  
+}
+ 
+export function getPayspecInvoiceUUID( invoiceData :PayspecInvoice )
    {
      var payspecContractAddress = invoiceData.payspecContractAddress;
      var description = invoiceData.description;
@@ -34,4 +44,4 @@ module.exports =  {
        expiresAt );
    }
 
- }
+ 
