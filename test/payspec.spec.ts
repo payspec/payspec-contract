@@ -5,7 +5,7 @@ import { BigNumber, Signer } from 'ethers'
 import hre from 'hardhat'
 //import { deploy } from 'helpers/deploy-helpers'
 import { FixedSupplyToken, Payspec } from '../generated/typechain'
-import { getPayspecInvoiceUUID, PayspecInvoice } from './helpers/payspec-helper'
+import { getPayspecInvoiceUUID, PayspecInvoice , ETH_ADDRESS} from './helpers/payspec-helper'
 
 chai.should()
 chai.use(chaiAsPromised)
@@ -108,7 +108,7 @@ describe('Payspec Contract', () => {
  
     })
 
-    it('should create and pay an invoice', async () => { 
+    it('should create and pay an invoice with tokens', async () => { 
 
       let newInvoiceData:PayspecInvoice = {
         payspecContractAddress:payspecContract.address,
@@ -143,6 +143,44 @@ describe('Payspec Contract', () => {
       let invoiceData = await payspecContract.invoices(expecteduuid)
 
       console.log('invoiceData',invoiceData)
+
+      expect(invoiceData.created).to.eql(true)
+
+
+    })
+
+    it('should create and pay an invoice with eth', async () => { 
+
+ 
+      let newInvoiceData:PayspecInvoice = {
+        payspecContractAddress:payspecContract.address,
+        description: 'testtx',
+        nonce: BigNumber.from(1),
+        token: ETH_ADDRESS,
+        amountDue: BigNumber.from(100),
+        payTo: await vendor.getAddress(),
+        feeAddresses: [ await deployer.getAddress() ],
+        feePercents: [ 2 ],
+        expiresAt: 0
+      }      
+      let expecteduuid = getPayspecInvoiceUUID( newInvoiceData )
+
+
+      await payspecContract.connect(customer).createAndPayInvoice(
+            newInvoiceData.description,
+            newInvoiceData.nonce,
+            newInvoiceData.token,
+            newInvoiceData.amountDue,
+            newInvoiceData.payTo,
+            newInvoiceData.feeAddresses,
+            newInvoiceData.feePercents,
+            newInvoiceData.expiresAt,
+            expecteduuid , {value: newInvoiceData.amountDue }
+          ) 
+
+
+      let invoiceData = await payspecContract.invoices(expecteduuid)
+ 
 
       expect(invoiceData.created).to.eql(true)
 

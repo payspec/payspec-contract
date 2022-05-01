@@ -3,6 +3,8 @@ import { BigNumber } from "ethers";
 var web3utils = require('web3-utils')
 
 
+export const ETH_ADDRESS = "0x0000000000000000000000000000000000000010" 
+
 export interface PayspecInvoice {
 
     payspecContractAddress: string,

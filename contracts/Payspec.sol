@@ -20,13 +20,11 @@ contract Payspec is Ownable, ReentrancyGuard {
   uint256 public immutable contractVersion  = 100;
   address immutable ETHER_ADDRESS = address(0x0000000000000000000000000000000000000010);
   
-  mapping(bytes32 => Invoice) public invoices;
-  mapping(bytes32 => bool) public cancelledInvoiceUUIDs;
+  mapping(bytes32 => Invoice) public invoices; 
 
   bool lockedByOwner = false; 
 
-  event CreatedInvoice(bytes32 uuid);
-  event CancelledInvoice(bytes32 uuid);
+  event CreatedInvoice(bytes32 uuid); 
   event PaidInvoice(bytes32 uuid, address from);
 
 
@@ -65,23 +63,7 @@ contract Payspec is Ownable, ReentrancyGuard {
   }
 
 
-   function cancelInvoice(   string memory description, uint256 nonce, address token, uint256 amountDue, address payTo, address[] memory feeAddresses, uint[] memory feePercents, uint256 ethBlockExpiresAt, bytes32 expecteduuid   ) public returns (bool) {
-
-     address from = msg.sender;
-
-     bytes32 invoiceUUID = getInvoiceUUID(description, nonce, token, amountDue, payTo, feeAddresses, feePercents,  ethBlockExpiresAt ) ;
-
-     require(!lockedByOwner);
-     require( invoiceUUID == expecteduuid );
-     require( payTo == from );  //can only cancel your own orders
-     require( invoiceWasPaid(invoiceUUID) == false );
-     require( invoiceWasCancelled(invoiceUUID) == false);
-
-      cancelledInvoiceUUIDs[invoiceUUID] = true;
-
-
-      emit CancelledInvoice(invoiceUUID);
-    }
+   
 
 
   function createAndPayInvoice(  string memory description, uint256 nonce, address token, uint256 amountDue, address payTo, address[] memory feeAddresses, uint[] memory feePercents, uint256 ethBlockExpiresAt, bytes32 expecteduuid  ) 
@@ -113,6 +95,8 @@ contract Payspec is Ownable, ReentrancyGuard {
       require( invoices[newuuid].uuid == 0 );  //make sure you do not overwrite invoices
       require(feeAddresses.length == feePercents.length);
 
+      require(ethBlockExpiresAt == 0 || block.number < ethBlockExpiresAt);
+
       invoices[newuuid] = Invoice({
        uuid:newuuid,
        description:description,
@@ -141,9 +125,7 @@ contract Payspec is Ownable, ReentrancyGuard {
 
        require(!lockedByOwner);
        require( invoices[invoiceUUID].uuid == invoiceUUID ); //make sure invoice exists
-       require( invoiceWasPaid(invoiceUUID) == false );
-       require( invoiceHasExpired(invoiceUUID) == false);
-       require( invoiceWasCancelled(invoiceUUID) == false);
+       require( invoiceWasPaid(invoiceUUID) == false ); 
 
        uint totalAmountDueInFees = 0; // invoices[invoiceUUID].amountDue.mul( fee_pct ).div(100);
 
@@ -187,10 +169,9 @@ contract Payspec is Ownable, ReentrancyGuard {
       
       if(tokenAddress == ETHER_ADDRESS){
         payable(to).transfer( tokenAmount ); 
+      }else{ 
+        IERC20( tokenAddress  ).transferFrom( from ,  to, tokenAmount  );
       }
-
-      IERC20( tokenAddress  ).transferFrom( from ,  to, tokenAmount  );
-
       return true;
    }
 
@@ -243,28 +224,7 @@ contract Payspec is Ownable, ReentrancyGuard {
        return invoices[invoiceUUID].ethBlockPaidAt;
    }
 
-
-
-   function invoiceExpiresAt( bytes32 invoiceUUID ) public view returns (uint){
-
-       return invoices[invoiceUUID].ethBlockExpiresAt;
-   }
-
-   function invoiceHasExpired( bytes32 invoiceUUID ) public view returns (bool){
-
-       return (invoiceExpiresAt(invoiceUUID) != 0 && block.number >= invoiceExpiresAt(invoiceUUID));
-   }
-
-   function invoiceWasCancelled( bytes32 invoiceUUID ) public view returns (bool){
-
-      return cancelledInvoiceUUIDs[invoiceUUID]  ;
-   }
-
-    function invoiceWasDisabled( bytes32 invoiceUUID ) public view returns (bool){
-
-      return invoiceWasCancelled(invoiceUUID) || invoiceHasExpired(invoiceUUID);
-   }
-
+ 
 
 
 }
