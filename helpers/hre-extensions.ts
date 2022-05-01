@@ -2,19 +2,19 @@ import '@nomiclabs/hardhat-ethers'
 import 'hardhat-deploy'
 
 import { BigNumber, BigNumberish, Contract, Signer } from 'ethers'
-import { ERC20 } from 'generated/typechain'
+
 import { extendEnvironment } from 'hardhat/config'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import moment from 'moment'
 
-import { getTokens } from '../config'
+//import { getTokens } from '../config'
 
 import { formatMsg, FormatMsgConfig } from './formatMsg'
 
 declare module 'hardhat/types/runtime' {
   interface HardhatRuntimeEnvironment {
     contracts: ContractsExtension
-    tokens: TokensExtension
+    
     evm: EVM
     getNamedSigner: (name: string) => Promise<Signer>
     toBN: (amount: BigNumberish, decimals?: BigNumberish) => BigNumber
@@ -35,9 +35,6 @@ interface ContractsExtension {
   ) => Promise<C>
 }
 
-interface TokensExtension {
-  get: (name: string) => Promise<ERC20>
-}
 
 interface AdvanceTimeOptions {
   /**
@@ -164,39 +161,12 @@ const updateEtherscanConfig = (hre: HardhatRuntimeEnvironment): void => {
   hre.config.etherscan.apiKey = apiKey
 }
 
-/**
- * Updates the Tenderly project name in the config based on the network being
- *  used.
- * @param hre {HardhatRuntimeEnvironment} Hardhat Environment variable to modify
- *  directly
- */
-const updateTenderlyConfig = (hre: HardhatRuntimeEnvironment): void => {
-  let projectName: string
-  switch (hre.network.name) {
-    case 'mainnet':
-      projectName = 'teller'
-      break
-
-    case 'kovan':
-      projectName = 'kovan'
-      break
-
-    case 'mumbai':
-      projectName = 'mumbai'
-      break
-
-    default:
-      projectName = 'test'
-  }
-
-  hre.config.tenderly.project = projectName
-}
-
+ 
 extendEnvironment((hre) => {
   const { deployments, ethers, network } = hre
 
   updateEtherscanConfig(hre)
-  updateTenderlyConfig(hre)
+   
 
   hre.contracts = {
     async get<C extends Contract>(
@@ -233,19 +203,7 @@ extendEnvironment((hre) => {
       return contract as C
     },
   }
-
-  hre.tokens = {
-    async get(nameOrAddress: string): Promise<ERC20> {
-      let address: string
-      if (ethers.utils.isAddress(nameOrAddress)) {
-        address = nameOrAddress
-      } else {
-        const tokens = getTokens(network)
-        address = tokens.all[nameOrAddress.toUpperCase()]
-      }
-      return await ethers.getContractAt('ERC20', address)
-    },
-  }
+ 
 
   hre.getNamedSigner = async (name: string): Promise<Signer> => {
     const accounts = await hre.getNamedAccounts()

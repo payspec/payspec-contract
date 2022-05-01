@@ -67,86 +67,8 @@ export const deploy = async <C extends Contract>(
   return contract
 }
 
-export interface DiamondExecuteArgs<F, A> {
-  methodName: F
-  args: A
-}
-
-type FacetConfig = Omit<DeployArgs, 'hre'>
-export type Facets = Array<string | FacetConfig>
-
-export interface DeployDiamondArgs<
-  C extends Contract,
-  F = string | undefined,
-  A = F extends keyof C['functions'] ? Parameters<C[F]> : undefined
-> extends CommonDeployArgs {
-  name: string
-  facets: Facets
-  owner?: string
-  execute?: F extends keyof C['functions']
-    ? DiamondExecuteArgs<F, A>
-    : undefined
-}
-
-export const deployDiamond = async <
-  C extends Contract,
-  F = string | undefined,
-  A = F extends keyof C['functions'] ? Parameters<C[F]> : undefined
->(
-  args: DeployDiamondArgs<C, F, A>
-): Promise<C> => {
-  const { hre, indent = 1 } = args
-  const {
-    deployments: { diamond },
-    getNamedAccounts,
-    ethers,
-    log,
-  } = hre
-
-  const { deployer } = await getNamedAccounts()
-
-  const contractDisplayName = chalk.green.bold.underline(args.name)
-  log(`Deploying Diamond facets for ${contractDisplayName}`, {
-    star: true,
-    indent,
-  })
-
-  for (let config of args.facets) {
-    if (typeof config === 'string') {
-      config = { contract: config }
-    }
-
-    const { deployResult } = await deploy({
-      ...config,
-      indent: indent + 1,
-      hre,
-    })
-    if (deployResult.artifactName) {
-      config.contract = deployResult.artifactName
-    }
-  }
-
-  const result = await diamond.deploy(args.name, {
-    owner: args.owner ?? deployer,
-    libraries: args.libraries,
-    facets: args.facets,
-    // @ts-expect-error fix type
-    execute: args.execute,
-    from: deployer,
-    log: false,
-  })
-
-  await onDeployResult({
-    result,
-    contract: 'Diamond',
-    name: args.name,
-    hre,
-    indent: indent + 1,
-  })
-  log('')
-
-  return await ethers.getContractAt(result.abi, result.address)
-}
+ 
+ 
 
 interface DeployResultArgs {
   result: DeployResult
@@ -163,9 +85,7 @@ const onDeployResult = async (args: DeployResultArgs): Promise<void> => {
   if (contract !== name) {
     displayName = `${displayName} (${chalk.bold.italic(contract)})`
   }
-  if (result.artifactName && result.artifactName !== contract) {
-    displayName = `${displayName} (${chalk.bold.italic(result.artifactName)})`
-  }
+  
 
   hre.log(`${displayName}:`, {
     indent,

@@ -16,7 +16,7 @@ import {
   TransactionReceipt,
   TransactionRequest,
 } from '@ethersproject/providers'
-import { HardhatEthersHelpers } from '@nomiclabs/hardhat-ethers/dist/src/types'
+//import { HardhatEthersHelpers } from '@nomiclabs/hardhat-ethers/src/types'
 import chalk from 'chalk'
 import { config } from 'dotenv'
 import { Signer, utils } from 'ethers'
@@ -28,6 +28,7 @@ import {
 import rrequire from './helpers/rrequire'
 import semver from 'semver' 
 import { task ,HardhatUserConfig} from 'hardhat/config'
+import { HardhatEthersHelpers } from '@nomiclabs/hardhat-ethers/types'
 
 const NODE_VERSION = 'v16.13.1'
 if (!semver.satisfies(process.version, NODE_VERSION))

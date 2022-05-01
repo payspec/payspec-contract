@@ -1,30 +1,31 @@
 import { DeployFunction } from 'hardhat-deploy/types'
 
-import { deploy } from '../utils/deploy-helpers'
+import { deploy } from '../helpers/deploy-helpers'
 import { BigNumberish, BigNumber as BN } from 'ethers'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { getTokens, getNetworkName} from '../config'
+import { ethers } from 'hardhat'
 
 const deployOptions: DeployFunction = async (hre) => {
-  const { getNamedSigner, run, network, log } = hre
-  const deployer = await getNamedSigner('deployer')
+  const {  run, network } = hre
+ // const deployer = await getNamedSigner('deployer')
 
-  const tokens = getTokens(network)
+  //const tokens = getTokens(network)
 
   // Make sure contracts are compiled
   await run('compile')
 
-  log('')
-  log('********** Deploying **********', { indent: 1 })
-  log('')
+  console.log('')
+  console.log('********** Deploying **********', { indent: 1 })
+  console.log('')
  
 
-  const wethDeploy = await deploy({
-    contract: 'WETH9',
-    args: [ ],
-    skipIfAlreadyDeployed: false,
-    hre, 
-  })
+ 
+
+  //const Weth = await ethers.getContractFactory("WETH")
+  //const wethDeploy = await Weth.deploy()
+
+  
 
   const payspecDeploy = await deploy({
     contract: 'Payspec',
