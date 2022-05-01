@@ -2,7 +2,7 @@
  *Submitted for verification at Etherscan.io on 2020-09-16
 */
 
-pragma solidity ^0.5.0;
+pragma solidity ^0.8.0;
 
 // ----------------------------------------------------------------------------------------------
 // Sample fixed supply token contract
@@ -12,20 +12,9 @@ pragma solidity ^0.5.0;
 // ERC Token Standard #20 Interface
 // https://github.com/ethereum/EIPs/issues/20
 
-
-contract ERC20Interface {
-    function totalSupply() public view returns (uint);
-    function balanceOf(address tokenOwner) public view returns (uint balance);
-    function allowance(address tokenOwner, address spender) public view returns (uint remaining);
-    function transfer(address to, uint tokens) public returns (bool success);
-    function approve(address spender, uint tokens) public returns (bool success);
-    function transferFrom(address from, address to, uint tokens) public returns (bool success);
-
-    event Transfer(address indexed from, address indexed to, uint tokens);
-    event Approval(address indexed tokenOwner, address indexed spender, uint tokens);
-}
-
-contract FixedSupplyToken is ERC20Interface {
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+ 
+contract FixedSupplyToken is IERC20 {
     string public constant symbol = "FIXED";
     string public constant name = "Example Fixed Supply Token";
     uint8 public constant decimals = 8;

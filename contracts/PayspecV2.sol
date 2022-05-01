@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.8.0;
 
 /*
 PAYSPEC: Generic invoicing contract
@@ -6,128 +6,21 @@ PAYSPEC: Generic invoicing contract
 Generate offchain invoices based on sell-order data and allow users to fulfill those order invoices onchain.
 
 */
+ 
 
-/**
- * @title SafeMath
- * @dev Math operations with safety checks that throw on error
- */
-library SafeMath {
-
-  /**
-  * @dev Multiplies two numbers, throws on overflow.
-  */
-  function mul(uint256 a, uint256 b) internal pure returns (uint256) {
-    if (a == 0) {
-      return 0;
-    }
-    uint256 c = a * b;
-    assert(c / a == b);
-    return c;
-  }
-
-  /**
-  * @dev Integer division of two numbers, truncating the quotient.
-  */
-  function div(uint256 a, uint256 b) internal pure returns (uint256) {
-    // assert(b > 0); // Solidity automatically throws when dividing by 0
-    uint256 c = a / b;
-    // assert(a == b * c + a % b); // There is no case in which this doesn't hold
-    return c;
-  }
-
-  /**
-  * @dev Substracts two numbers, throws on overflow (i.e. if subtrahend is greater than minuend).
-  */
-  function sub(uint256 a, uint256 b) internal pure returns (uint256) {
-    assert(b <= a);
-    return a - b;
-  }
-
-  /**
-  * @dev Adds two numbers, throws on overflow.
-  */
-  function add(uint256 a, uint256 b) internal pure returns (uint256) {
-    uint256 c = a + b;
-    assert(c >= a);
-    return c;
-  }
-}
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 
 
+ 
 
 
-contract ERC20Interface {
-    function totalSupply() public view returns (uint);
-    function balanceOf(address tokenOwner) public view returns (uint balance);
-    function allowance(address tokenOwner, address spender) public view returns (uint remaining);
-    function transfer(address to, uint tokens) public returns (bool success);
-    function approve(address spender, uint tokens) public returns (bool success);
-    function transferFrom(address from, address to, uint tokens) public returns (bool success);
+contract PayspecV2 is Ownable, ReentrancyGuard {
 
-    event Transfer(address indexed from, address indexed to, uint tokens);
-    event Approval(address indexed tokenOwner, address indexed spender, uint tokens);
-}
-
-
-
-
-contract Owned {
-
-    address public owner;
-
-    address public newOwner;
-
-
-    event OwnershipTransferred(address indexed _from, address indexed _to);
-
-
-    constructor() public {
-
-        owner = msg.sender;
-
-    }
-
-
-    modifier onlyOwner {
-
-        require(msg.sender == owner);
-
-        _;
-
-    }
-
-
-    function transferOwnership(address _newOwner) public onlyOwner {
-
-        newOwner = _newOwner;
-
-    }
-
-    function acceptOwnership() public {
-
-        require(msg.sender == newOwner);
-
-        emit OwnershipTransferred(owner, newOwner);
-
-        owner = newOwner;
-
-        newOwner = address(0);
-
-    }
-
-}
-
-
-
-
-
-
-
-contract PayspecV2 is Owned {
-
-   using SafeMath for uint;
-
+  address immutable ETHER_ADDRESS = address(0x0000000000000000000000000000000000000010);
+ 
 
    mapping(bytes32 => Invoice) invoices;
    mapping(bytes32 => bool) cancelledInvoiceUUIDs;
@@ -167,13 +60,8 @@ contract PayspecV2 is Owned {
 
   constructor(   ) public {
 
-  }
-
-
-  //do not allow ether to enter
-  function() external    payable {
-      revert();
-  }
+  } 
+ 
 
   function lockContract() public onlyOwner {
     lockedByOwner = true;
@@ -199,14 +87,26 @@ contract PayspecV2 is Owned {
     }
 
 
-  function createAndPayInvoice(  string memory description, uint256 nonce, address token, uint256 amountDue, address payTo, address[] memory feeAddresses, uint[] memory feePercents, uint256 ethBlockExpiresAt, bytes32 expecteduuid  ) public returns (bool) {
+  function createAndPayInvoice(  string memory description, uint256 nonce, address token, uint256 amountDue, address payTo, address[] memory feeAddresses, uint[] memory feePercents, uint256 ethBlockExpiresAt, bytes32 expecteduuid  ) 
+    public 
+    payable 
+    nonReentrant
+    returns (bool) {
+     
+     if(token == ETHER_ADDRESS){
+       require(msg.value == amountDue, "Transaction sent incorrect ETH amount.");
+     }else{
+       require(msg.value == 0, "Transaction sent ETH for an ERC20 invoice.");
+     }
+     
      bytes32 newuuid = _createInvoice(description,nonce,token,amountDue,payTo,feeAddresses, feePercents,ethBlockExpiresAt,expecteduuid);
      require(newuuid == expecteduuid);
      return _payInvoice(newuuid);
   }
 
-   function _createInvoice(  string memory description, uint256 nonce, address token, uint256 amountDue, address payTo, address[] memory feeAddresses, uint[] memory feePercents, uint256 ethBlockExpiresAt, bytes32 expecteduuid ) private returns (bytes32 uuid) {
-
+   function _createInvoice(  string memory description, uint256 nonce, address token, uint256 amountDue, address payTo, address[] memory feeAddresses, uint[] memory feePercents, uint256 ethBlockExpiresAt, bytes32 expecteduuid ) 
+    private 
+    returns (bytes32 uuid) { 
 
 
       bytes32 newuuid = getInvoiceUUID(description, nonce, token, amountDue, payTo, feeAddresses, feePercents,  ethBlockExpiresAt ) ;
@@ -252,25 +152,20 @@ contract PayspecV2 is Owned {
 
 
 
-          for(uint i=0;i<invoices[invoiceUUID].feeAddresses.length;i++){
-              uint amtDueInFees =  invoices[invoiceUUID].amountDue.mul( invoices[invoiceUUID].feePercents[i] ).div(100);
+       for(uint i=0;i<invoices[invoiceUUID].feeAddresses.length;i++){
+              uint amtDueInFees =  invoices[invoiceUUID].amountDue * ( invoices[invoiceUUID].feePercents[i] / 100);
 
-              //transfer each fee
-              require( ERC20Interface( invoices[invoiceUUID].token  ).transferFrom( from ,  invoices[invoiceUUID].feeAddresses[i], amtDueInFees) );
+              //transfer each fee 
+              require(  _payTokenAmount(invoices[invoiceUUID].token , from , invoices[invoiceUUID].feeAddresses[i], amtDueInFees ) , "Unable to pay fees amount due." );
 
-              totalAmountDueInFees = totalAmountDueInFees.add( amtDueInFees );
-          }
+              totalAmountDueInFees = totalAmountDueInFees + amtDueInFees ;
+       }
+ 
 
+      uint amountDueLessFees =  invoices[invoiceUUID].amountDue - totalAmountDueInFees ; 
 
-        require(totalAmountDueInFees <= invoices[invoiceUUID].amountDue );
-
-
-
-        uint amountDueLessFees =  invoices[invoiceUUID].amountDue.sub( totalAmountDueInFees );
-        require( totalAmountDueInFees.add(amountDueLessFees) ==  invoices[invoiceUUID].amountDue );
-
-      //transfer the tokens to the seller
-       require( ERC20Interface( invoices[invoiceUUID].token  ).transferFrom( from ,  invoices[invoiceUUID].payTo, amountDueLessFees  ) );
+        //transfer the tokens to the seller
+      require( _payTokenAmount(  invoices[invoiceUUID].token ,  from,  invoices[invoiceUUID].payTo, amountDueLessFees  ),"Unable to pay amount due.");
 
 
 
@@ -286,6 +181,21 @@ contract PayspecV2 is Owned {
        emit PaidInvoice(invoiceUUID, from);
 
        return true;
+
+
+   }
+
+
+   function _payTokenAmount(address tokenAddress, address from, address to, uint256 tokenAmount) 
+      internal 
+      returns (bool) {
+      
+      if(tokenAddress == ETHER_ADDRESS){
+ 
+        payable(to).transfer( tokenAmount ); 
+      }
+
+      return IERC20( tokenAddress  ).transferFrom( from ,  to, tokenAmount  );
 
 
    }
