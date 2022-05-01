@@ -17,16 +17,15 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
  
 
 
-contract PayspecV2 is Ownable, ReentrancyGuard {
+contract Payspec is Ownable, ReentrancyGuard {
 
+  uint256 public immutable contractVersion  = 100;
   address immutable ETHER_ADDRESS = address(0x0000000000000000000000000000000000000010);
- 
+  
+  mapping(bytes32 => Invoice) public invoices;
+  mapping(bytes32 => bool) public cancelledInvoiceUUIDs;
 
-   mapping(bytes32 => Invoice) invoices;
-   mapping(bytes32 => bool) cancelledInvoiceUUIDs;
-
-   bool lockedByOwner = false;
-  // uint fee_pct;
+  bool lockedByOwner = false; 
 
   event CreatedInvoice(bytes32 uuid);
   event CancelledInvoice(bytes32 uuid);

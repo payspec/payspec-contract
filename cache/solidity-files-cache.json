@@ -221,8 +221,8 @@
       ]
     },
     "/home/andy/dev/payspec-contract/contracts/PayspecV2.sol": {
-      "lastModificationDate": 1651425867165,
-      "contentHash": "e0d40be7eb110b4f5937a4711f1fac63",
+      "lastModificationDate": 1651426238367,
+      "contentHash": "98ae309aeed6d5aa0d6c95b21d3c8dbc",
       "sourceName": "contracts/PayspecV2.sol",
       "solcConfig": {
         "version": "0.8.4",
@@ -263,7 +263,7 @@
         "^0.8.0"
       ],
       "artifacts": [
-        "PayspecV2"
+        "Payspec"
       ]
     },
     "/home/andy/dev/payspec-contract/node_modules/@openzeppelin/contracts/access/Ownable.sol": {

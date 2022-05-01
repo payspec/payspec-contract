@@ -23,21 +23,17 @@ const deployOptions: DeployFunction = async (hre) => {
     contract: 'WETH9',
     args: [ ],
     skipIfAlreadyDeployed: false,
-    hre,
-    /*proxy: {
-      proxyContract: 'OpenZeppelinTransparentProxy',
-      execute: {
-        init: {
-          methodName: 'initialize',
-          args: [
-            'Nifty Options',
-            'NFTYOPTS',
-            uriFetcher.address,
-          ]
-        }
-      }
-    },*/
+    hre, 
   })
+
+  const payspecDeploy = await deploy({
+    contract: 'Payspec',
+    args: [ ],
+    skipIfAlreadyDeployed: false,
+    hre, 
+  })
+
+
 }
 
 deployOptions.tags = ['primary']
