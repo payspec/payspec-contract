@@ -19,10 +19,10 @@ import * as path from 'path'
 config()
 
 const {
-  ALCHEMY_KOVAN_KEY,
-  ALCHEMY_RINKEBY_KEY,
-  ALCHEMY_ROPSTEN_KEY,
-  ALCHEMY_MAINNET_KEY,
+  KOVAN_RPC_URL,
+  RINKEBY_RPC_URL,
+  ROPSTEN_RPC_URL,
+  MAINNET_RPC_URL,
   COMPILING,
   CMC_KEY,
   ETHERSCAN_API_KEY,
@@ -44,17 +44,17 @@ let isTesting = false
 if (TESTING === '1') {
   isTesting = true
 
-  require('./test/helpers/chai-helpers')
+   
 }
 
-const networkUrls: { [network: string]: string } = {
-  kovan: `https://kovan.infura.io/v3/${INFURA_KEY}`,
-  rinkeby: `https://rinkeby.infura.io/v3/${INFURA_KEY}`,
-  ropsten: `https://ropsten.infura.io/v3/${INFURA_KEY}`,
-  goerli: `https://goerli.infura.io/v3/${INFURA_KEY}`,
-  mainnet: `https://mainnet.infura.io/v3/${INFURA_KEY}`,
-  polygon: `https://polygon-mainnet.infura.io/v3/${INFURA_KEY}`,
-  polygon_mumbai: `https://polygon-mumbai.infura.io/v3/${INFURA_KEY}`,
+const networkUrls: { [network: string]: string } = { 
+  mainnet: process.env.MAINNET_RPC_URL ?? '',
+  kovan: process.env.KOVAN_RPC_URL ?? '',
+  rinkeby: process.env.RINKEBY_RPC_URL ?? '',
+  ropsten: process.env.ROPSTEN_RPC_URL ?? '',
+  polygon: process.env.POLYGON_RPC_URL ?? '',
+  mumbai: process.env.MUMBAI_RPC_URL ?? '',
+  goerli: process.env.GOERLI_RPC_URL ?? '',
   xdai: 'https://rpc.xdaichain.com/',
   rinkebyArbitrum: 'https://rinkeby.arbitrum.io/rpc',
   localArbitrum: 'http://localhost:8547',
@@ -240,8 +240,8 @@ export default <HardhatUserConfig>{
       chainId: 137,
       live: true,
     }),
-    polygon_mumbai: networkConfig({
-      url: networkUrls.polygon_mumbai,
+    mumbai: networkConfig({
+      url: networkUrls.mumbai,
       chainId: 80001,
       live: true,
     }),
