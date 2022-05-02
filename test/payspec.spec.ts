@@ -5,7 +5,7 @@ import { BigNumber, Signer } from 'ethers'
 import hre from 'hardhat'
 //import { deploy } from 'helpers/deploy-helpers'
 import { FixedSupplyToken, Payspec } from '../generated/typechain'
-import { getPayspecInvoiceUUID, PayspecInvoice , ETH_ADDRESS} from './helpers/payspec-helper'
+import { getPayspecInvoiceUUID, PayspecInvoice , ETH_ADDRESS} from 'payspec-js'
 
 chai.should()
 chai.use(chaiAsPromised)
