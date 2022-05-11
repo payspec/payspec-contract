@@ -17,7 +17,7 @@ interface SetupOptions {}
 
 interface SetupReturn {
   payspecContract: Payspec
-  
+  fixedSupplyToken: Contract
 }
 
 const setup = deployments.createFixture<SetupReturn, SetupOptions>(
@@ -70,16 +70,18 @@ describe('Payspec Contract', () => {
  
 
     it('should build an invoice', async () => { 
+
+      let payToArray = [ await deployer.getAddress() ]
+      let amountsDueArray = [ 100 ]
  
       let newInvoiceData:PayspecInvoice = {
         payspecContractAddress:payspecContract.address,
         description: 'testtx',
-        nonce: BigNumber.from(1),
+        nonce: BigNumber.from(1).toString(),
         token: fixedSupplyToken.address,
-        amountDue: BigNumber.from(100),
-        payTo: await vendor.getAddress(),
-        feeAddresses: [ await deployer.getAddress() ],
-        feePercents: [ 2 ],
+        totalAmountDue: BigNumber.from(100).toString(), 
+        payToArrayStringified: JSON.stringify(payToArray),
+        amountsDueArrayStringified: JSON.stringify(amountsDueArray),
         expiresAt: 0
       }      
  
@@ -88,10 +90,9 @@ describe('Payspec Contract', () => {
           newInvoiceData.description,
           newInvoiceData.nonce,
           newInvoiceData.token,
-          newInvoiceData.amountDue,
-          newInvoiceData.payTo,
-          newInvoiceData.feeAddresses,
-          newInvoiceData.feePercents,
+          newInvoiceData.totalAmountDue, 
+          payToArray,
+          amountsDueArray,
           newInvoiceData.expiresAt
         ) //.call({ from: myAccount }) ;
     
@@ -101,7 +102,7 @@ describe('Payspec Contract', () => {
 
 
 
-        expecteduuid.should.eql(actualInvoiceUUID)
+        expecteduuid!.should.eql(actualInvoiceUUID)
           
         console.log('actualInvoiceUUID',actualInvoiceUUID)
  
@@ -109,19 +110,27 @@ describe('Payspec Contract', () => {
     })
 
     it('should create and pay an invoice with tokens', async () => { 
-
+ 
+      
+      let payToArray = [ await deployer.getAddress() ]
+      let amountsDueArray = [ 100 ]
+ 
       let newInvoiceData:PayspecInvoice = {
         payspecContractAddress:payspecContract.address,
         description: 'testtx',
-        nonce: BigNumber.from(1),
+        nonce: BigNumber.from(1).toString(),
         token: fixedSupplyToken.address,
-        amountDue: BigNumber.from(100),
-        payTo: await vendor.getAddress(),
-        feeAddresses: [ await deployer.getAddress() ],
-        feePercents: [ 2 ],
+        totalAmountDue: BigNumber.from(100).toString(), 
+        payToArrayStringified: JSON.stringify(payToArray),
+        amountsDueArrayStringified: JSON.stringify(amountsDueArray),
         expiresAt: 0
-      }      
+      }    
+
       let expecteduuid = getPayspecInvoiceUUID( newInvoiceData )
+
+      if(!expecteduuid){
+        throw new Error('Undefined expecteduuid')
+      }
 
       //mint and preapprove tokens 
       await fixedSupplyToken.connect(customer).mint(await customer.getAddress(), 10000) 
@@ -131,10 +140,9 @@ describe('Payspec Contract', () => {
         newInvoiceData.description,
         newInvoiceData.nonce,
         newInvoiceData.token,
-        newInvoiceData.amountDue,
-        newInvoiceData.payTo,
-        newInvoiceData.feeAddresses,
-        newInvoiceData.feePercents,
+        newInvoiceData.totalAmountDue,
+        payToArray,
+        amountsDueArray, 
         newInvoiceData.expiresAt,
         expecteduuid
       )
@@ -151,31 +159,38 @@ describe('Payspec Contract', () => {
 
     it('should create and pay an invoice with eth', async () => { 
 
+      let payToArray = [ await deployer.getAddress() ]
+      let amountsDueArray = [ 100 ]
  
+      
       let newInvoiceData:PayspecInvoice = {
         payspecContractAddress:payspecContract.address,
         description: 'testtx',
-        nonce: BigNumber.from(1),
+        nonce: BigNumber.from(1).toString(),
         token: ETH_ADDRESS,
-        amountDue: BigNumber.from(100),
-        payTo: await vendor.getAddress(),
-        feeAddresses: [ await deployer.getAddress() ],
-        feePercents: [ 2 ],
+        totalAmountDue: BigNumber.from(100).toString(), 
+        payToArrayStringified: JSON.stringify(payToArray),
+        amountsDueArrayStringified: JSON.stringify(amountsDueArray),
         expiresAt: 0
-      }      
+      }    
+
+
       let expecteduuid = getPayspecInvoiceUUID( newInvoiceData )
 
 
+      if(!expecteduuid){
+        throw new Error('Undefined expecteduuid')
+      }
+      
       await payspecContract.connect(customer).createAndPayInvoice(
             newInvoiceData.description,
             newInvoiceData.nonce,
             newInvoiceData.token,
-            newInvoiceData.amountDue,
-            newInvoiceData.payTo,
-            newInvoiceData.feeAddresses,
-            newInvoiceData.feePercents,
+            newInvoiceData.totalAmountDue,
+            payToArray,
+            amountsDueArray, 
             newInvoiceData.expiresAt,
-            expecteduuid , {value: newInvoiceData.amountDue }
+            expecteduuid , {value: newInvoiceData.totalAmountDue }
           ) 
 
 
