@@ -1,6 +1,6 @@
 {
-  "name": "soliditytemplate_hardhat",
-  "version": "1.0.0",
+  "name": "payspec_contract",
+  "version": "1.10.0",
   "main": "index.js",
   "license": "MIT",
   "devDependencies": {
