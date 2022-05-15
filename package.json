@@ -68,6 +68,6 @@
     "send": "yarn hh send",
     "generate": "yarn hardhat generate",
     "account": "yarn hardhat account",
-    "verify": "hardhat etherscan-verify  "
+    "verify": "npx hardhat etherscan-verify  "
   }
 }

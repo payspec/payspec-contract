@@ -6,6 +6,7 @@
 #### Deploying 
  
 
-yarn deploy --network rinkeby 
+npm run deploy --network=rinkeby 
+ 
 
-yarn verify --network rinkeby --license MIT 
+npx hardhat etherscan-verify --network rinkeby
