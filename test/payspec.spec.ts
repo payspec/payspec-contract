@@ -18,7 +18,7 @@ interface SetupOptions {}
 
 interface SetupReturn {
   payspecContract: Payspec
-  fixedSupplyToken: Contract
+  fixedSupplyToken: FixedSupplyToken
 }
 
 const setup = deployments.createFixture<SetupReturn, SetupOptions>(
@@ -30,7 +30,7 @@ const setup = deployments.createFixture<SetupReturn, SetupOptions>(
     const payspecContract = await hre.contracts.get<Payspec>('Payspec')
    
         
-      const fixedSupplyToken = await deploy({
+      const fixedSupplyToken:FixedSupplyToken  = await deploy({
         contract: 'FixedSupplyToken',
         args: [ ],
         skipIfAlreadyDeployed: false,
