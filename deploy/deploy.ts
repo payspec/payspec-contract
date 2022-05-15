@@ -20,19 +20,7 @@ const deployOptions: DeployFunction = async (hre) => {
   console.log('')
  
 
- 
-
-  //const Weth = await ethers.getContractFactory("WETH")
-  //const wethDeploy = await Weth.deploy()
-
-
-  const fixedSupplyTokenDeploy = await deploy({
-    contract: 'FixedSupplyToken',
-    args: [ ],
-    skipIfAlreadyDeployed: false,
-    hre, 
-  })
-
+  
   
 
   const payspecDeploy = await deploy({

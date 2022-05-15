@@ -1,11 +1,12 @@
  
 import chai, { expect } from 'chai'
 import chaiAsPromised from 'chai-as-promised'
-import { BigNumber, Signer } from 'ethers'
+import { BigNumber, Contract, Signer } from 'ethers'
 import hre from 'hardhat'
 //import { deploy } from 'helpers/deploy-helpers'
 import { FixedSupplyToken, Payspec } from '../generated/typechain'
 import { getPayspecInvoiceUUID, PayspecInvoice , ETH_ADDRESS} from 'payspec-js'
+import { deploy } from '../helpers/deploy-helpers'
 
 chai.should()
 chai.use(chaiAsPromised)
@@ -27,8 +28,16 @@ const setup = deployments.createFixture<SetupReturn, SetupOptions>(
     })
 
     const payspecContract = await hre.contracts.get<Payspec>('Payspec')
-    const fixedSupplyToken = await hre.contracts.get<FixedSupplyToken>('FixedSupplyToken')
-    
+   
+        
+      const fixedSupplyToken = await deploy({
+        contract: 'FixedSupplyToken',
+        args: [ ],
+        skipIfAlreadyDeployed: false,
+        hre, 
+      })
+
+
 
     return {
       payspecContract,
