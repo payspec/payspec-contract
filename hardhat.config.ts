@@ -35,7 +35,7 @@ if (!semver.satisfies(process.version, NODE_VERSION))
   throw new Error(
     `Incorrect NodeJS version being used (${process.version}). Expected: ${NODE_VERSION}`
   )
-
+ 
 config()
 const { isAddress, getAddress, formatUnits, parseUnits, parseEther } = utils
 
@@ -87,11 +87,11 @@ const accounts: HardhatNetworkHDAccountsUserConfig = {
   count: 15,
   accountsBalance: parseEther('100000000').toString(),
 }
-
+ 
 const networkUrls: { [network: string]: string } = {
   mainnet: process.env.MAINNET_RPC_URL ?? '',
   kovan: process.env.KOVAN_RPC_URL ?? '',
-  rinkeby: process.env.RINKEBY_RPC_URL ?? '',
+  rinkeby: process.env.RINKEBY_RPC_URL ?? 'https://eth-rinkeby.alchemyapi.io/v2/k78WV2Yf8yVKW42DzDXz4EKfHgRyR1kK',
   ropsten: process.env.ROPSTEN_RPC_URL ?? '',
   polygon: process.env.POLYGON_RPC_URL ?? '',
   mumbai: process.env.MUMBAI_RPC_URL ?? '',
@@ -130,6 +130,7 @@ const networkConfig = (config: NetworkUserConfig): NetworkUserConfig => ({
   ...config,
   accounts,
   gas: 'auto',
+  saveDeployments: true 
 })
 
 /*
