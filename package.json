@@ -47,7 +47,7 @@
     "mocha": "^7.1.0",
     "moment": "^2.29.1",
     "node-watch": "^0.7.0",
-    "payspec-js": "^0.16.0",
+    "payspec-js": "^0.22.0",
     "qrcode-terminal": "^0.12.0",
     "ramda": "^0.27.1",
     "ts-node": "^10.3.0",
@@ -67,7 +67,7 @@
     "accounts": "yarn hardhat accounts",
     "balance": "yarn hardhat balance",
     "send": "yarn hardhat send",
-    "generate": "yarn hardhat generate",
+    "generate": "yarn ts-node helpers/generate-account.ts",
     "account": "yarn hardhat account",
     "verify": "yarn hardhat etherscan-verify"
   }

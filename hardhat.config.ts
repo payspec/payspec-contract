@@ -30,7 +30,7 @@ import semver from 'semver'
 import { task ,HardhatUserConfig} from 'hardhat/config'
 import { HardhatEthersHelpers } from '@nomiclabs/hardhat-ethers/types'
 
-const NODE_VERSION = 'v16.13.1'
+const NODE_VERSION = 'v16.14.2'
 if (!semver.satisfies(process.version, NODE_VERSION))
   throw new Error(
     `Incorrect NodeJS version being used (${process.version}). Expected: ${NODE_VERSION}`
