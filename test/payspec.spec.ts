@@ -5,7 +5,7 @@ import { BigNumber, Contract, Signer } from 'ethers'
 import hre from 'hardhat'
 //import { deploy } from 'helpers/deploy-helpers'
 import { FixedSupplyToken, Payspec } from '../generated/typechain'
-import { getPayspecInvoiceUUID, PayspecInvoice , ETH_ADDRESS} from 'payspec-js'
+import { getPayspecRandomNonce, getPayspecInvoiceUUID, PayspecInvoice , ETH_ADDRESS} from 'payspec-js'
 import { deploy } from '../helpers/deploy-helpers'
 
 chai.should()
@@ -83,6 +83,8 @@ describe('Payspec Contract', () => {
       let payToArray = [ await deployer.getAddress() ]
       let amountsDueArray = [ 100 ]
  
+      let randomNonce = getPayspecRandomNonce()
+
       let newInvoiceData:PayspecInvoice = {
         payspecContractAddress:payspecContract.address,
         description: 'testtx',
